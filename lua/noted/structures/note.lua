@@ -1,10 +1,12 @@
+
 ---@type NoteManager
 local nm = require('note_manager')
+
+
 
 ---@class Note
 local Note = {}
 Note.__index = Note
-
 
 ---@param fullpath string
 ---@return Note
@@ -18,7 +20,7 @@ function Note.new(fullpath)
 end
 
 function Note:delete()
-    nm.remove(self.id)
+    nm.remove(self.id)  -- TODO: is this even safe to call
 end
 
 ---link the current note to another note
@@ -53,7 +55,6 @@ function Note:is_child(other_id)
     end
     return false
 end
-
 
 
 return Note
