@@ -22,5 +22,9 @@ function M.slugify(title)
     return title:lower():gsub("%s+", "-"):gsub("[^%w%-]", "")
 end
 
+---@param path string eg "/home/wasi/Documents/notebook1/note1.md"
+---@return string eg "note1"
+function M.extract_title(path)
+end
 
 return M

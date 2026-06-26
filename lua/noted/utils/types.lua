@@ -9,11 +9,21 @@
 ---@field private children ID[] list of notes mentioned by this note using `[[]]`
 ---@field private parents ID[] list of notes that mention this note
 ---@field new function
+---@field delete function
 
----@class ID_Manager
+
+---assign unique ID to each note
+---@class IdManager
 ---@field assign function
 ---@field deassign function
 ---@field is_free function
+
+
+---common storage/retrival for all notes in any notebooks
+---@class NoteManager
+---@field add function
+---@field remove
+
 
 
 ---@class Notebook
@@ -21,3 +31,7 @@
 ---@field path? string full path to notebook folder. a notebook doesn't need to be confined to a single folder
 ---@field subfolders string[] list of all recursive subfolders
 ---@field notes ID[]
+
+
+
+

@@ -4,7 +4,7 @@ local counter = 0;
 local free_list = {}
 
 
----@class ID_Manager
+---@class IdManager
 local M = {}
 
 ---lazy id assignment
@@ -37,6 +37,5 @@ function M.is_free(id)
 
     return id >= counter
 end
-
 
 return M
