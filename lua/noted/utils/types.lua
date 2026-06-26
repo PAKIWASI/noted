@@ -4,10 +4,10 @@
 
 
 ---@class Note
----@field private id ID unique id for each note
----@field private path string full path to the note. name of note is it's filename
----@field private children ID[] list of notes mentioned by this note using `[[]]`
----@field private parents ID[] list of notes that mention this note
+---@field id ID unique id for each note
+---@field path string full path to the note. name of note is it's filename
+---@field children ID[] list of notes mentioned by this note using `[[]]`
+---@field parents ID[] list of notes that mention this note
 ---@field new function
 ---@field delete function
 
@@ -22,7 +22,7 @@
 ---common storage/retrival for all notes in any notebooks
 ---@class NoteManager
 ---@field add function
----@field remove
+---@field remove function
 
 
 
@@ -30,7 +30,7 @@
 ---@field name string the folder name
 ---@field path? string full path to notebook folder. a notebook doesn't need to be confined to a single folder
 ---@field subfolders string[] list of all recursive subfolders
----@field notes ID[]
+---@field notes ID[] list of note id's 
 
 
 

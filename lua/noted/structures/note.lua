@@ -1,5 +1,5 @@
 
-
+---@type NoteManager
 local nm = require('note_manager')
 
 ---@class Note
@@ -14,13 +14,13 @@ function Note.new(fullpath)
         id = require('id_manager').assign(),
         path = fullpath,
     }, Note)
-
-
+    nm.add(note)
+    return note
 end
 
-function Note.delete(id)
-    
+function Note:delete()
 end
+
 
 
 return Note
