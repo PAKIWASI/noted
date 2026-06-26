@@ -4,7 +4,7 @@
 
 
 ---@class Note
----@field id ID unique id for each note
+---@field id ID unique id for each note. MUST ensure uniqueness of a note!!
 ---@field path string full path to the note. name of note is it's filename
 ---@field children ID[] list of notes mentioned by this note using `[[]]`
 ---@field parents ID[] list of notes that mention this note
