@@ -23,7 +23,6 @@ end
 
 ---@param id ID
 function NoteManager.remove(id)
-    -- TODO: should we call remove? or = nil? we have a hashmap here
     assert(notes[id], "note is not present")
     notes[id] = nil
 end
@@ -46,8 +45,7 @@ end
 
 ---@param id ID
 function NoteManager.deassign(id)
-    -- TODO: how to gaurd against multiple calls to this with same id
-    --dev
+    --dev - O(n)
     assert(NoteManager.is_free(id), "id is already free")
     table.insert(free_list, id)
 end
