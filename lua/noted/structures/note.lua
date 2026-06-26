@@ -12,7 +12,7 @@ Note.__index = Note
 ---@return Note
 function Note.new(fullpath)
     local note = setmetatable({
-        id = require('id_manager').assign(),
+        id = nm.assign(),
         path = fullpath,
     }, Note)
     nm.add(note)
@@ -20,7 +20,8 @@ function Note.new(fullpath)
 end
 
 function Note:delete()
-    nm.remove(self.id)  -- TODO: is this even safe to call
+    nm.deassign(self.id)
+    nm.remove(self.id)
 end
 
 ---link the current note to another note

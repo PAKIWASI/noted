@@ -12,18 +12,13 @@
 ---@field delete function
 
 
----assign unique ID to each note
----@class IdManager
----@field assign function
----@field deassign function
----@field is_free function
-
-
----common storage/retrival for all notes in any notebooks
+---common storage/retrival/id for all notes in any notebook
 ---@class NoteManager
 ---@field add function
 ---@field remove function
-
+---@field assign function
+---@field deassign function
+---@field is_free function
 
 
 ---@class Notebook
