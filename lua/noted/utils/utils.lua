@@ -14,7 +14,7 @@ function M.assert_string_valid(string)
     assert(string and string ~= "", "string is nil or empty")
 end
 
---- repace whitespaces with dashes and remove anything not alphanumeric or dash
+---repace whitespaces with dashes and remove anything not alphanumeric or dash
 ---@param title string
 ---@return string
 ---@return number
