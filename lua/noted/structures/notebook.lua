@@ -1,47 +1,38 @@
+
 ---@type table<string, Notebook>
 local notebooks = {}
-
-
--- TODO: about path/name validation, I think i should do that one level above
--- this so we'll have fewer calls here
-local u = require('utils.utils')
 
 
 ---@class Notebook
 local Notebook = {}
 Notebook.__index = Notebook
 
-
 ---@param name string
 ---@param path? string
+---@return Notebook
 function Notebook.new(name, path)
-    u.assert_title_valid(name)
-    if path then
-        u.assert_fullpath_valid(path)
-    end
     local notebook = setmetatable({
+        name = name,
         path = path,
-        subfolders = { { -- subfolders[0]
-            name,       -- name of the notebook itself
-            {}          -- notes directly in the folder (not in any subfolder)
-        } }
+        subfolders = {
+            { name = name, notes = {} }  -- [1] is always the root subfolder
+        },
     }, Notebook)
     notebooks[name] = notebook
     return notebook
 end
 
 function Notebook:delete()
-    notebooks[self.subfolders[1].name] = nil
+    notebooks[self.subfolders[1].name] = nil    -- TODO: is this right
 end
 
----returns true if notebook is tied to an actual folder
+---returns true if notebook is tied to an actual folder on disk
 ---@return boolean
 function Notebook:is_real()
     return self.path ~= nil
 end
 
----return a subfolder if found, nil otherwise
----@param notebook Notebook
+---return a subfolder by name, or nil if not found
 ---@param subfolder_name string
 ---@return subfolder?
 local function find_subfolder(notebook, subfolder_name)
@@ -53,18 +44,32 @@ local function find_subfolder(notebook, subfolder_name)
     return nil
 end
 
----comment
+---add a note id to a subfolder. returns true on success, false if subfolder not found.
 ---@param id ID
 ---@param subfolder_name string
+---@return boolean
 function Notebook:add_note(id, subfolder_name)
     local subf = find_subfolder(self, subfolder_name)
-    assert(subf, "folder with name doesnot exist")
+    if not subf then
+        return false
+    end
     table.insert(subf.notes, id)
+    return true
 end
 
-
+---remove a note id from whichever subfolder holds it
+---@param id ID
+---@return boolean
 function Notebook:remove_note(id)
-
+    for _, subf in ipairs(self.subfolders) do
+        for i, note_id in ipairs(subf.notes) do
+            if note_id == id then
+                table.remove(subf.notes, i)
+                return true
+            end
+        end
+    end
+    return false
 end
 
 

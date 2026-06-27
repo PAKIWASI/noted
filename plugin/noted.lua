@@ -1,10 +1,6 @@
+-- plugin/noted.lua
+-- Sourced automatically on startup. Keep this minimal.
+-- Users call require("noted").setup(...) themselves.
 
-
--- Files under `plugin/` are sourced automatically and unconditionally every time Neovim starts
--- This runs before the user has necessarily called `require("notes").setup(...)`
-
---Put here only what truly must exist before `setup()` is called — most commonly, nothing at all for a modern plugin
-
-vim.notify("plugin/noted.lua ran")
-
-
+if vim.g.loaded_noted then return end
+vim.g.loaded_noted = true

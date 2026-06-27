@@ -1,17 +1,12 @@
 local M = {}
 
+-- TODO: linux only for now
 
 ---true if string is not nil and not empty
 ---@param str string
 ---@return boolean
 function M.string_valid(str)
-    return (str and str ~= "")
-end
-
----asserts string not nil and not empty
----@param str string
-function M.assert_string_valid(str)
-    assert(str and str ~= "", "string is nil or empty")
+    return (str ~= nil and str ~= "")
 end
 
 ---checks if a full path is valid (absolute path, .md extension)
@@ -22,28 +17,19 @@ function M.fullpath_valid(fullpath)
         return false
     end
 
-    -- Check if it's an absolute path
     if fullpath:sub(1, 1) ~= "/" then
         return false
     end
 
-    -- Check if it has .md extension
     local s, e = fullpath:find("%.md$")
     if not s then
         return false
     end
 
-    -- Ensure .md is at the end
     return e == #fullpath
 end
 
----asserts fullpath is valid
----@param fullpath string
-function M.assert_fullpath_valid(fullpath)
-    assert(M.fullpath_valid(fullpath), "Invalid file path: " .. tostring(fullpath))
-end
-
----repace whitespaces with dashes and remove anything not alphanumeric or dash
+---replace whitespaces with dashes and remove anything not alphanumeric or dash
 ---@param title string
 ---@return string
 ---@return number -- number of replacements made
@@ -55,15 +41,10 @@ end
 ---@param path string eg "/home/wasi/Documents/notebook1/note1.md"
 ---@return string -- eg "note1"
 function M.extract_title(path)
-    M.assert_fullpath_valid(path)
-
-    -- Get the filename from the path
     local filename = path:match("([^/]+)$")
     if not filename then
         return ""
     end
-
-    -- Remove the .md extension
     local title = filename:match("^(.-)%.md$")
     return title or filename
 end
@@ -72,26 +53,20 @@ end
 ---@param fullpath string eg "/home/wasi/Documents/notebook1/note1.md"
 ---@return string -- eg "/home/wasi/Documents/notebook1/"
 function M.extract_dir(fullpath)
-    M.assert_fullpath_valid(fullpath)
     return fullpath:match("(.*/)[^/]*$") or ""
 end
 
----check if a string is a valid title (not empty, no slashes, etc)
+---check if a string is a valid title (not empty, no slashes, no .md extension)
 ---@param title string
 ---@return boolean
 function M.title_valid(title)
     if not M.string_valid(title) then
         return false
     end
-    -- Title shouldn't contain path separators or extension
     if title:find("/") or title:find("%.md$") then
         return false
     end
     return true
-end
-
-function M.assert_title_valid(title)
-    assert(M.title_valid(title), "title is not valid")
 end
 
 ---join path components
@@ -101,8 +76,6 @@ function M.join_path(...)
     local parts = { ... }
     local result = {}
     for _, part in ipairs(parts) do
-        M.assert_string_valid(part)
-        -- Remove leading/trailing slashes for joining
         local clean = part:gsub("^/+", ""):gsub("/+$", "")
         if clean ~= "" then
             table.insert(result, clean)
@@ -125,29 +98,15 @@ end
 ---@param path string
 ---@return boolean
 function M.file_exists(path)
-    if not M.string_valid(path) then
-        return false
-    end
-
-    local file = io.open(path, "r")
-    if file then
-        file:close()
-        return true
-    end
-    return false
+    return vim.uv.fs_stat(path) ~= nil
 end
 
 ---check if a directory exists on disk
 ---@param path string
 ---@return boolean
 function M.dir_exists(path)
-    if not M.string_valid(path) then
-        return false
-    end
-
-    -- Use luv or vim.loop for better directory checking
-    local stat = vim.loop.fs_stat(path)
-    return stat and stat.type == "directory"
+    local stat = vim.uv.fs_stat(path)
+    return stat ~= nil and stat.type == "directory"
 end
 
 

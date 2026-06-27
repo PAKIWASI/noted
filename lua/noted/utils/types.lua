@@ -1,39 +1,40 @@
-
-
 ---@alias ID integer unique id for each note
 
 
 ---@class Note
----@field id ID unique id for each note. MUST ensure uniqueness of a note!!
----@field path string full path to the note. name of note is it's filename
----@field children ID[] list of notes mentioned by this note using `[[]]`
----@field parents ID[] list of notes that mention this note
+---@field id ID unique id for each note
+---@field path string full path to the note; the note name is its filename without extension
+---@field outlinks ID[] ids of notes that this note links to via [[]]
+---@field backlinks ID[] ids of notes that link to this note
 ---@field new function
 ---@field delete function
 
 
----common storage/retrival/id for all notes in any notebook
+---central store and id allocator for all notes across all notebooks
 ---@class NoteManager
 ---@field add function
 ---@field remove function
 ---@field assign function
 ---@field deassign function
 ---@field is_free function
+---@field is_present function
+---@field get_id_struct function
+---@field set_id_struct function
 
----we export this for persistant storage
+
+---exported for persistent storage
 ---@class id_struct
 ---@field counter ID
----@field free_list ID[]
+---@field free_ids table<ID, true>
 
 
----each notebooks has one (the root) or more subfolders
+---each notebook has one root subfolder (index 1) and zero or more named subfolders
 ---@class subfolder
----@field name string name of the subfolder (or folder if first element of the array)
----@field notes ID[]  list of note ids (symbolically) attached to the subfolder
+---@field name string
+---@field notes ID[]
+
 
 ---@class Notebook
----@field path? string full path to notebook folder. a notebook doesn't need to be confined to a single folder
+---@field name string display name of the notebook
+---@field path? string root path on disk; nil for abstract (virtual) notebooks
 ---@field subfolders subfolder[]
-
-
-
