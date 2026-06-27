@@ -1,6 +1,7 @@
 
 ---@type NoteManager
 local nm = require('note_manager')
+local u  = require('utils.utils')
 
 
 
@@ -11,6 +12,7 @@ Note.__index = Note
 ---@param fullpath string
 ---@return Note
 function Note.new(fullpath)
+    u.assert_string_valid(fullpath)
     local note = setmetatable({
         id = nm.assign(),
         path = fullpath,
@@ -37,7 +39,7 @@ end
 ---@param other_id ID
 ---@return boolean
 function Note:is_parent(other_id)
-    for id in self.children do
+    for id in self.children do  -- TODO: does this get the key or the value?
         if id == other_id then
             return true
         end
@@ -49,7 +51,7 @@ end
 ---@param other_id ID
 ---@return boolean
 function Note:is_child(other_id)
-    for id in self.parents do
+    for _, id in ipairs(self.parents) do
         if id == other_id then
             return true
         end

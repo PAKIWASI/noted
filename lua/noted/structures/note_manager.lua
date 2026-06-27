@@ -4,16 +4,15 @@
 ---@type Note<ID, Note>
 local notes = {}
 
----lazy id assignment
+--lazy id assignment
 local counter = 0;
 ---@type ID[]
 local free_list = {}
 
 
+
 ---@class NoteManager
 local NoteManager = {}
-
-
 
 ---@param note Note
 function NoteManager.add(note)
@@ -45,7 +44,7 @@ end
 
 ---@param id ID
 function NoteManager.deassign(id)
-    --dev - O(n)
+    --dev assert - O(n)
     assert(NoteManager.is_free(id), "id is already free")
     table.insert(free_list, id)
 end
@@ -60,6 +59,20 @@ function NoteManager.is_free(id)
     end
 
     return id >= counter
+end
+
+---@return id_struct
+function NoteManager.get_id_struct()
+    return {
+        counter,
+        free_list
+    }
+end
+
+---@param id_struct id_struct
+function NoteManager.set_id_struct(id_struct)
+    counter = id_struct.counter
+    free_list = id_struct.free_list
 end
 
 

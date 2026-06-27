@@ -20,12 +20,17 @@
 ---@field deassign function
 ---@field is_free function
 
+---we export this for persistant storage
+---@class id_struct
+---@field counter ID
+---@field free_list ID[]
+
 
 ---@class Notebook
----@field name string the folder name
+---@field name string can be the folder name or just a name if notebook not tied to a folder
 ---@field path? string full path to notebook folder. a notebook doesn't need to be confined to a single folder
 ---@field subfolders string[] list of all recursive subfolders
----@field notes ID[] list of note id's 
+---@field notes ID[] list of note id's attached to this notebook
 
 
 
