@@ -6,7 +6,7 @@ t.describe("utils.string_valid", function()
     local u
 
     t.before_each(function()
-        u = require("noted.utils.utils")
+        u = require("lua.noted.utils.name_path")
     end)
 
     t.it("false for nil", function()
@@ -29,7 +29,7 @@ t.describe("utils.fullpath_valid", function()
     local u
 
     t.before_each(function()
-        u = require("noted.utils.utils")
+        u = require("lua.noted.utils.name_path")
     end)
 
     t.it("accepts a valid absolute .md path", function()
@@ -67,7 +67,7 @@ t.describe("utils.title_valid", function()
     local u
 
     t.before_each(function()
-        u = require("noted.utils.utils")
+        u = require("lua.noted.utils.name_path")
     end)
 
     t.it("accepts simple names", function()
@@ -101,7 +101,7 @@ t.describe("utils.extract_title", function()
     local u
 
     t.before_each(function()
-        u = require("noted.utils.utils")
+        u = require("lua.noted.utils.name_path")
     end)
 
     t.it("strips directory and .md extension", function()
@@ -123,7 +123,7 @@ t.describe("utils.extract_dir", function()
     local u
 
     t.before_each(function()
-        u = require("noted.utils.utils")
+        u = require("lua.noted.utils.name_path")
     end)
 
     t.it("returns directory with trailing slash", function()
@@ -141,7 +141,7 @@ t.describe("utils.slugify", function()
     local u
 
     t.before_each(function()
-        u = require("noted.utils.utils")
+        u = require("lua.noted.utils.name_path")
     end)
 
     t.it("lowercases and replaces spaces with dashes", function()
@@ -167,7 +167,7 @@ t.describe("utils.join_path", function()
     local u
 
     t.before_each(function()
-        u = require("noted.utils.utils")
+        u = require("lua.noted.utils.name_path")
     end)
 
     t.it("joins two segments", function()
@@ -189,7 +189,7 @@ t.describe("utils.get_extension", function()
     local u
 
     t.before_each(function()
-        u = require("noted.utils.utils")
+        u = require("lua.noted.utils.name_path")
     end)
 
     t.it("returns md for a .md file", function()

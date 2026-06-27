@@ -72,7 +72,7 @@ end
 ---join path components
 ---@param ... string
 ---@return string
-function M.join_path(...)
+function M.join_path(...)   -- TODO: use vim.fs.joinpath
     local parts = { ... }
     local result = {}
     for _, part in ipairs(parts) do

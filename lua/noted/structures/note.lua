@@ -1,3 +1,4 @@
+
 local nm = require('noted.structures.note_manager')
 
 

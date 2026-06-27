@@ -9,7 +9,7 @@ end
 --[[
 When you implement commands.lua, that's where validation lives. The pattern is:
 lua-- commands.lua
-local u = require("noted.utils.utils")
+local u = require("noted.utils.name_path")
 
 local function cmd_new_note(path)
     if not u.fullpath_valid(path) then
