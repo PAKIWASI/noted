@@ -12,7 +12,7 @@ Note.__index = Note
 ---@param fullpath string
 ---@return Note
 function Note.new(fullpath)
-    u.assert_string_valid(fullpath)
+    u.assert_fullpath_valid(fullpath)
     local note = setmetatable({
         id = nm.assign(),
         path = fullpath,
@@ -39,7 +39,7 @@ end
 ---@param other_id ID
 ---@return boolean
 function Note:is_parent(other_id)
-    for id in self.children do  -- TODO: does this get the key or the value?
+    for _, id in ipairs(self.children) do  -- TODO: does this get the key or the value?
         if id == other_id then
             return true
         end

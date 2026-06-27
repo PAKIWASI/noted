@@ -26,12 +26,14 @@
 ---@field free_list ID[]
 
 
----@class Notebook
----@field name string can be the folder name or just a name if notebook not tied to a folder
----@field path? string full path to notebook folder. a notebook doesn't need to be confined to a single folder
----@field subfolders string[] list of all recursive subfolders
----@field notes ID[] list of note id's attached to this notebook
+---each notebooks has one (the root) or more subfolders
+---@class subfolder
+---@field name string name of the subfolder (or folder if first element of the array)
+---@field notes ID[]  list of note ids (symbolically) attached to the subfolder
 
+---@class Notebook
+---@field path? string full path to notebook folder. a notebook doesn't need to be confined to a single folder
+---@field subfolders subfolder[]
 
 
 

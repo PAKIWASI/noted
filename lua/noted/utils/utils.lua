@@ -18,7 +18,9 @@ end
 ---@param fullpath string
 ---@return boolean
 function M.fullpath_valid(fullpath)
-    M.assert_string_valid(fullpath)
+    if not M.string_valid(fullpath) then
+        return false
+    end
 
     -- Check if it's an absolute path
     if fullpath:sub(1, 1) ~= "/" then
@@ -88,6 +90,10 @@ function M.title_valid(title)
     return true
 end
 
+function M.assert_title_valid(title)
+    assert(M.title_valid(title), "title is not valid")
+end
+
 ---join path components
 ---@param ... string
 ---@return string
@@ -107,7 +113,7 @@ end
 
 ---get file extension
 ---@param path string
----@return string|nil
+---@return string?
 function M.get_extension(path)
     if not M.string_valid(path) then
         return nil

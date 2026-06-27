@@ -1,12 +1,12 @@
 
 
 ---common Note map for all notes
----@type Note<ID, Note>
+---@type table<ID, Note>
 local notes = {}
 
 --lazy id assignment
 local counter = 0;
----@type ID[]
+---@type ID[]       -- TODO: should we make this a set? then O(1) lookup
 local free_list = {}
 
 
@@ -57,7 +57,7 @@ function NoteManager.is_free(id)
             return true
         end
     end
-
+    -- id out of current assigned range
     return id >= counter
 end
 
