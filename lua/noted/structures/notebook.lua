@@ -1,6 +1,5 @@
 
----@type table<string, Notebook>
-local notebooks = {}
+local nbm = require('noted.structures.notebook_manager')
 
 
 ---@class Notebook
@@ -12,24 +11,27 @@ Notebook.__index = Notebook
 ---@return Notebook
 function Notebook.new(name, path)
     local notebook = setmetatable({
-        name = name,
         path = path,
         subfolders = {
             { name = name, notes = {} }  -- [1] is always the root subfolder
         },
     }, Notebook)
-    notebooks[name] = notebook
+    nbm.add(notebook)
     return notebook
 end
 
 function Notebook:delete()
-    notebooks[self.subfolders[1].name] = nil    -- TODO: is this right
+    nbm.remove(self.subfolders[1].name)
 end
 
 ---returns true if notebook is tied to an actual folder on disk
 ---@return boolean
 function Notebook:is_real()
     return self.path ~= nil
+end
+
+function Notebook:get_name()
+    return self.subfolders[1].name
 end
 
 ---return a subfolder by name, or nil if not found
