@@ -26,7 +26,7 @@ end
 ---@param id_struct id_struct
 ---@param notebooks table<string, Notebook>
 function NotebookManager.save_all(notes, id_struct, notebooks)
-
+    -- one file for each param
 end
 
 
@@ -37,7 +37,7 @@ function NotebookManager.load_all()
 
 end
 
----if user makes external changes, sync them (move/del note, modify link)
+---if user makes external changes, sync them (move/del note, modify link etc)
 ---@param notes table<ID, Note>
 ---@param id_struct id_struct
 ---@param notebooks table<string, Notebook>
