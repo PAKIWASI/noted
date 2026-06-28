@@ -1,9 +1,8 @@
---- tests/runner.lua
 --- Minimal test runner for pure-Lua modules (no Neovim required).
 ---
 --- Usage:
 ---   lua tests/runner.lua [test_file ...]
----   lua tests/runner.lua              -- runs every *_test.lua in tests/
+---   lua tests/runner.lua              -- runs every *.test.lua in tests/
 ---
 --- Writing tests:
 ---   local t = require("tests.runner")
@@ -25,6 +24,8 @@
 ---   t.run()   -- call once at the end of each test file
 
 -- ─── stub vim.* so modules load without Neovim ───────────────────────────────
+
+-- TODO: colored output?
 
 ---@diagnostic disable
 vim            = vim or {}
@@ -56,7 +57,6 @@ local _current = nil   -- suite being defined right now
 
 local PASS     = "✓"
 local FAIL     = "✗"
-local SKIP     = "–"
 
 -- ─── suite / test registration ───────────────────────────────────────────────
 
@@ -312,7 +312,7 @@ if is_main then
         .. tests_dir .. "?.lua;"          -- so test files can require("tests.runner")
         .. package.path
 
-    -- collect test files: either from argv or by globbing tests/*_test.lua
+    -- collect test files: either from argv or by globbing tests/*.test.lua
     local files       = {}
     if #arg > 0 then
         for _, f in ipairs(arg) do
@@ -330,7 +330,7 @@ if is_main then
     end
 
     if #files == 0 then
-        io.write("No test files found (looking for tests/*_test.lua)\n")
+        io.write("No test files found (looking for tests/*.test.lua)\n")
         os.exit(0)
     end
 

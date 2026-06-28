@@ -21,6 +21,8 @@
 ---@field assign function
 ---@field deassign function
 ---@field is_free function
+---@field get_notes function
+---@field set_notes function
 ---@field get_id_struct function
 ---@field set_id_struct function
 
@@ -50,3 +52,10 @@
 ---@class NotebookManager
 ---@field add function
 ---@field remove function
+---@field save_all function
+---@field load_all function
+---@field sync_all function
+
+
+---@class NotebookNvimConfig
+

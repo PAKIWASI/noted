@@ -53,6 +53,16 @@ function NoteManager.is_free(id)
     return free_ids[id] == true or id >= counter
 end
 
+---@return table<ID, Note>
+function NoteManager.get_notes()
+    return notes
+end
+
+---@param saved_notes table<ID, Note>
+function NoteManager.set_notes(saved_notes)
+    notes = saved_notes
+end
+
 ---returns the id state needed for persistent storage
 ---@return id_struct
 function NoteManager.get_id_struct()
