@@ -1,5 +1,7 @@
 
 local nm = require('noted.structures.note_manager')
+local fs = require("noted.utils.fs")
+local np = require("noted.utils.name_path")
 
 
 ---@class Note
@@ -52,6 +54,50 @@ function Note:is_child(other_id)
     end
     return false
 end
+
+
+---create the .md file on disk for a new note
+---@return boolean, string?
+function Note:create_file()
+    if fs.kind(self.path) then
+        return false, "file already exists: " .. self.path
+    end
+    -- write a minimal YAML front-matter header
+    local content = "# " .. np.extract_title(self.path) .. "\n\n"
+    return fs.write(self.path, content)
+end
+
+---read raw markdown content
+---@return string?, string?
+function Note:read()
+    return fs.read(self.path)
+end
+
+---overwrite content (e.g. after editing links)
+---@param content string
+---@return boolean, string?
+function Note:write(content)
+    return fs.write(self.path, content)
+end
+
+---delete the .md file and deregister from NoteManager
+function Note:delete_file()
+    local ok, err = fs.delete(self.path)
+    if not ok then return false, err end
+    self:delete()  -- deregisters from NoteManager
+    return true
+end
+
+---rename the file on disk and update self.path
+---@param new_path string
+---@return boolean, string?
+function Note:rename(new_path)
+    local ok, err = fs.rename(self.path, new_path)
+    if not ok then return false, err end
+    self.path = new_path
+    return true
+end
+
 
 
 return Note

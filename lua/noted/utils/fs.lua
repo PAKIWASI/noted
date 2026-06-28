@@ -1,5 +1,124 @@
-
 -- utilites for file creation/deletion/move etc
+local M = {}
 
 
+-- directories
 
+---create a directory (and all parents). synchronous.
+---@param path string
+---@return boolean, string? -- ok, err
+function M.mkdir(path)
+    local ok, err = vim.uv.fs_mkdir(path, 493) -- 493 = 0755
+    if not ok and err and not err:find("EEXIST") then
+        return false, err
+    end
+    return true
+end
+
+--TODO: isn't there a vim function that does this?
+---recursively create directories (like mkdir -p)
+---
+---@param path string
+---@return boolean, string?
+function M.mkdirp(path)
+    -- walk up until a parent exists, then create downward
+    local parts = {}
+    local cur = path
+    while cur and cur ~= "/" do
+        if vim.uv.fs_stat(cur) then break end
+        table.insert(parts, 1, cur)
+        cur = vim.fs.dirname(cur)
+    end
+    for _, p in ipairs(parts) do
+        local ok, err = M.mkdir(p)
+        if not ok then return false, err end
+    end
+    return true
+end
+
+---remove an empty directory
+---@param path string
+---@return boolean, string?
+function M.rmdir(path)
+    local ok, err = vim.uv.fs_rmdir(path)
+    return ok ~= nil, err
+end
+
+---list entries in a directory
+---@param path string
+---@return string[]?, string? -- names (not full paths), err
+function M.scandir(path)
+    local handle, err = vim.uv.fs_opendir(path, nil, 64)
+    if not handle then return nil, err end
+    local names = {}
+    while true do
+        local entries = vim.uv.fs_readdir(handle)
+        if not entries then break end
+        for _, e in ipairs(entries) do
+            table.insert(names, e.name) -- e.name, e.type
+        end
+    end
+    vim.uv.fs_closedir(handle)
+    return names
+end
+
+
+-- files
+
+---read entire file as a string
+---@param path string
+---@return string?, string? -- content, err
+function M.read(path)
+    local fd, err = vim.uv.fs_open(path, "r", 292) -- 292 = 0444
+    if not fd then return nil, err end
+    local stat = vim.uv.fs_fstat(fd)
+    local data, rerr = vim.uv.fs_read(fd, stat.size, 0)
+    vim.uv.fs_close(fd)
+    return data, rerr
+end
+
+---write (overwrite) a file atomically via a temp file
+---@param path string
+---@param content string
+---@return boolean, string?
+function M.write(path, content)
+    local tmp = path .. ".tmp"
+    local fd, err = vim.uv.fs_open(tmp, "w", 420) -- 420 = 0644
+    if not fd then return false, err end
+    local _, werr = vim.uv.fs_write(fd, content, 0)
+    vim.uv.fs_close(fd)
+    if werr then
+        vim.uv.fs_unlink(tmp)
+        return false, werr
+    end
+    local ok, rerr = vim.uv.fs_rename(tmp, path)
+    return ok ~= nil, rerr
+end
+
+---delete a file
+---@param path string
+---@return boolean, string?
+function M.delete(path)
+    local ok, err = vim.uv.fs_unlink(path)
+    return ok ~= nil, err
+end
+
+---rename/move a file or directory
+---@param src string
+---@param dst string
+---@return boolean, string?
+function M.rename(src, dst)
+    local ok, err = vim.uv.fs_rename(src, dst)
+    return ok ~= nil, err
+end
+
+---check existence and type
+---@param path string
+---@return "file"|"directory"|nil
+function M.kind(path)
+    local stat = vim.uv.fs_stat(path)
+    if not stat then return nil end
+    return stat.type == "directory" and "directory" or "file"
+end
+
+return M

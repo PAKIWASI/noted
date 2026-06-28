@@ -1,5 +1,5 @@
-
 local nbm = require('noted.structures.notebook_manager')
+local fs = require("noted.utils.fs")
 
 
 ---@class Notebook
@@ -13,7 +13,7 @@ function Notebook.new(name, path)
     local notebook = setmetatable({
         path = path,
         subfolders = {
-            { name = name, notes = {} }  -- [1] is always the root subfolder
+            { name = name, notes = {} } -- [1] is always the root subfolder
         },
     }, Notebook)
     nbm.add(notebook)
@@ -72,6 +72,27 @@ function Notebook:remove_note(id)
         end
     end
     return false
+end
+
+---create the notebook root directory on disk (only for real notebooks)
+---@return boolean, string?
+function Notebook:create_dir()
+    if not self:is_real() then
+        return false, "abstract notebook has no path"
+    end
+    return fs.mkdirp(self.path)
+end
+
+---create a named subfolder under the notebook root
+---@param subfolder_name string
+---@return boolean, string?
+function Notebook:create_subfolder(subfolder_name)
+    assert(self:is_real(), "cannot create subfolder on abstract notebook")
+    local path = vim.fs.joinpath(self.path, subfolder_name)
+    local ok, err = fs.mkdir(path)
+    if not ok then return false, err end
+    table.insert(self.subfolders, { name = subfolder_name, notes = {} })
+    return true
 end
 
 

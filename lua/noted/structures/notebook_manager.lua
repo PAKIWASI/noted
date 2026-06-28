@@ -1,4 +1,9 @@
 
+local fs = require("noted.utils.fs")
+
+local STATE_PATH = vim.fs.joinpath(vim.fn.stdpath("data"), "noted-state.json")
+
+
 ---@type table<string, Notebook>
 local notebooks = {}
 
@@ -24,9 +29,36 @@ end
 ---save everything as json to nvim's default data directory (.local/state?)
 ---@param notes table<ID, Note>
 ---@param id_struct id_struct
----@param notebooks table<string, Notebook>
-function NotebookManager.save_all(notes, id_struct, notebooks)
-    -- one file for each param
+---@param nbs table<string, Notebook>
+function NotebookManager.save_all(notes, id_struct, nbs)
+    -- strip metatables: vim.json can only encode plain tables
+    local notes_plain = {}
+    for id, note in pairs(notes) do
+        notes_plain[tostring(id)] = {
+            path      = note.path,
+            outlinks  = note.outlinks,
+            backlinks = note.backlinks,
+        }
+    end
+
+    local nbs_plain = {}
+    for name, nb in pairs(nbs) do
+        nbs_plain[name] = {
+            path       = nb.path,
+            subfolders = nb.subfolders,
+        }
+    end
+
+    local payload = vim.json.encode({
+        notes      = notes_plain,
+        id_struct  = id_struct,
+        notebooks  = nbs_plain,
+    })
+
+    local ok, err = fs.write(STATE_PATH, payload)
+    if not ok then
+        vim.notify("noted: save failed: " .. (err or "?"), vim.log.levels.ERROR)
+    end
 end
 
 
