@@ -57,8 +57,18 @@
 ---@field sync_all function
 
 
+---@alias PickerBackend "auto"|"telescope"|"fzf-lua"|"snacks"|"mini"|"vim.ui.select"
+
+---@class NotedKeymaps
+---@field goto_link string  keymap in noted md buffers to follow [[link]] under cursor
+---@field backlinks string  open backlinks picker for current note
+---@field tree      string  open tree view for current note's notebook
+
 ---@class NotebookNvimConfig
----
----
+---@field default_notebook string|nil            used when a command needs one and none given; nil = always prompt
+---@field link_pattern     string                Lua pattern to extract link targets from [[…]]
+---@field index_on_save    boolean               re-index + save on every BufWritePost in a noted buffer
+---@field picker           PickerBackend         picker backend; "auto" probes in order: snacks → telescope → fzf-lua → mini → vim.ui.select
+---@field keymaps          NotedKeymaps
 
 

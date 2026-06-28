@@ -1,7 +1,6 @@
 
 local fs = require("noted.utils.fs")
 
-local STATE_PATH = vim.fs.joinpath(vim.fn.stdpath("data"), "noted-state.json")
 
 
 ---@type table<string, Notebook>
@@ -31,6 +30,9 @@ end
 ---@param id_struct id_struct
 ---@param nbs table<string, Notebook>
 function NotebookManager.save_all(notes, id_struct, nbs)
+
+    -- TODO: should we set this here or at config level?
+    local STATE_PATH = vim.fs.joinpath(vim.fn.stdpath("data"), "noted-state.json")
     -- strip metatables: vim.json can only encode plain tables
     local notes_plain = {}
     for id, note in pairs(notes) do

@@ -15,23 +15,13 @@ function M.mkdir(path)
     return true
 end
 
---TODO: isn't there a vim function that does this?
 ---recursively create directories (like mkdir -p)
----
 ---@param path string
 ---@return boolean, string?
 function M.mkdirp(path)
-    -- walk up until a parent exists, then create downward
-    local parts = {}
-    local cur = path
-    while cur and cur ~= "/" do
-        if vim.uv.fs_stat(cur) then break end
-        table.insert(parts, 1, cur)
-        cur = vim.fs.dirname(cur)
-    end
-    for _, p in ipairs(parts) do
-        local ok, err = M.mkdir(p)
-        if not ok then return false, err end
+    local ok = vim.fn.mkdir(path, "p")
+    if ok == 0 then
+        return false, "mkdir -p failed: " .. path
     end
     return true
 end
@@ -44,23 +34,24 @@ function M.rmdir(path)
     return ok ~= nil, err
 end
 
----list entries in a directory
----@param path string
----@return string[]?, string? -- names (not full paths), err
-function M.scandir(path)
-    local handle, err = vim.uv.fs_opendir(path, nil, 64)
-    if not handle then return nil, err end
-    local names = {}
-    while true do
-        local entries = vim.uv.fs_readdir(handle)
-        if not entries then break end
-        for _, e in ipairs(entries) do
-            table.insert(names, e.name) -- e.name, e.type
-        end
-    end
-    vim.uv.fs_closedir(handle)
-    return names
-end
+--vim.fs.dir exists
+-- ---list entries in a directory
+-- ---@param path string
+-- ---@return string[]?, string? -- names (not full paths), err
+-- function M.scandir(path)
+--     local handle, err = vim.uv.fs_opendir(path, nil, 64)
+--     if not handle then return nil, err end
+--     local names = {}
+--     while true do
+--         local entries = vim.uv.fs_readdir(handle)
+--         if not entries then break end
+--         for _, e in ipairs(entries) do
+--             table.insert(names, e.name) -- e.name, e.type
+--         end
+--     end
+--     vim.uv.fs_closedir(handle)
+--     return names
+-- end
 
 
 -- files
@@ -71,7 +62,11 @@ end
 function M.read(path)
     local fd, err = vim.uv.fs_open(path, "r", 292) -- 292 = 0444
     if not fd then return nil, err end
-    local stat = vim.uv.fs_fstat(fd)
+    local stat, serr = vim.uv.fs_fstat(fd)
+    if not stat then
+        vim.uv.fs_close(fd)
+        return nil, serr
+    end
     local data, rerr = vim.uv.fs_read(fd, stat.size, 0)
     vim.uv.fs_close(fd)
     return data, rerr

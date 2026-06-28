@@ -69,20 +69,20 @@ function M.title_valid(title)
     return true
 end
 
----join path components
----@param ... string
----@return string
-function M.join_path(...)   -- TODO: use vim.fs.joinpath
-    local parts = { ... }
-    local result = {}
-    for _, part in ipairs(parts) do
-        local clean = part:gsub("^/+", ""):gsub("/+$", "")
-        if clean ~= "" then
-            table.insert(result, clean)
-        end
-    end
-    return "/" .. table.concat(result, "/")
-end
+-- ---join path components
+-- ---@param ... string
+-- ---@return string
+-- function M.join_path(...)   -- TODO: use vim.fs.joinpath
+--     local parts = { ... }
+--     local result = {}
+--     for _, part in ipairs(parts) do
+--         local clean = part:gsub("^/+", ""):gsub("/+$", "")
+--         if clean ~= "" then
+--             table.insert(result, clean)
+--         end
+--     end
+--     return "/" .. table.concat(result, "/")
+-- end
 
 ---get file extension
 ---@param path string
