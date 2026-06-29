@@ -32,7 +32,7 @@ t.describe("Notebook.new", function()
 
     t.it("path is nil when not given", function()
         local Notebook = fresh()
-        local nb = Notebook.new("abstract")
+        local nb = Notebook.new("virtual")
         t.is_nil(nb.path)
     end)
 end)
@@ -40,9 +40,9 @@ end)
 -- ─── Notebook:is_real ────────────────────────────────────────────────────────
 
 t.describe("Notebook:is_real", function()
-    t.it("false for abstract notebook", function()
+    t.it("false for virtual notebook", function()
         local Notebook = fresh()
-        t.is_false(Notebook.new("abstract"):is_real())
+        t.is_false(Notebook.new("virtual"):is_real())
     end)
 
     t.it("true when path given", function()

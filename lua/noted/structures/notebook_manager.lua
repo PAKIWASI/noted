@@ -13,16 +13,16 @@ local NotebookManager = {}
 ---add a new notebook
 ---@param notebook Notebook
 function NotebookManager.add(notebook)
-    local name = notebook.subfolders[1].name
-    assert(notebooks[name] == nil, "notebook with this name is already present!")
-    notebooks[name] = notebook
+    local subpath = notebook.subfolders[1].subpath
+    assert(notebooks[subpath] == nil, "notebook with this name is already present!")
+    notebooks[subpath] = notebook
 end
 
 ---remove a notebook from storage
----@param name string
-function NotebookManager.remove(name)
-    assert(notebooks[name], "notebook with name is not present")
-    notebooks[name] = nil
+---@param subpath string
+function NotebookManager.remove(subpath)
+    assert(notebooks[subpath], "notebook with name is not present")
+    notebooks[subpath] = nil
 end
 
 ---save everything as json to nvim's default data directory (.local/state?)

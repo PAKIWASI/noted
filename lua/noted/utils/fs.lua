@@ -20,7 +20,7 @@ end
 ---@return boolean, string?
 function M.mkdirp(path)
     local ok = vim.fn.mkdir(path, "p")
-    if ok == 0 then
+    if not ok then
         return false, "mkdir -p failed: " .. path
     end
     return true
@@ -33,25 +33,6 @@ function M.rmdir(path)
     local ok, err = vim.uv.fs_rmdir(path)
     return ok ~= nil, err
 end
-
---vim.fs.dir exists
--- ---list entries in a directory
--- ---@param path string
--- ---@return string[]?, string? -- names (not full paths), err
--- function M.scandir(path)
---     local handle, err = vim.uv.fs_opendir(path, nil, 64)
---     if not handle then return nil, err end
---     local names = {}
---     while true do
---         local entries = vim.uv.fs_readdir(handle)
---         if not entries then break end
---         for _, e in ipairs(entries) do
---             table.insert(names, e.name) -- e.name, e.type
---         end
---     end
---     vim.uv.fs_closedir(handle)
---     return names
--- end
 
 
 -- files
@@ -109,7 +90,7 @@ end
 
 ---check existence and type
 ---@param path string
----@return "file"|"directory"|nil
+---@return "file"|"directory"?
 function M.kind(path)
     local stat = vim.uv.fs_stat(path)
     if not stat then return nil end

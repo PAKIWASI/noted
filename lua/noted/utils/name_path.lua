@@ -56,6 +56,12 @@ function M.extract_dir(fullpath)
     return fullpath:match("(.*/)[^/]*$") or ""
 end
 
+---get the final directory name
+---@param subpath string eg "/general_notes/todos/"
+---@return string  -- eg "todos"
+function M.extract_dir_name(subpath)
+end
+
 ---check if a string is a valid title (not empty, no slashes, no .md extension)
 ---@param title string
 ---@return boolean
@@ -68,21 +74,6 @@ function M.title_valid(title)
     end
     return true
 end
-
--- ---join path components
--- ---@param ... string
--- ---@return string
--- function M.join_path(...)   -- TODO: use vim.fs.joinpath
---     local parts = { ... }
---     local result = {}
---     for _, part in ipairs(parts) do
---         local clean = part:gsub("^/+", ""):gsub("/+$", "")
---         if clean ~= "" then
---             table.insert(result, clean)
---         end
---     end
---     return "/" .. table.concat(result, "/")
--- end
 
 ---get file extension
 ---@param path string

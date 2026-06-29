@@ -12,7 +12,6 @@ local free_ids = {}
 ---@class NoteManager
 local NoteManager = {}
 
-
 ---@param note Note
 function NoteManager.add(note)
     assert(not notes[note.id], "note already present")

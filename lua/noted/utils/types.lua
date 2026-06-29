@@ -35,12 +35,12 @@
 
 ---each notebook has one root subfolder (index 1) and zero or more named subfolders
 ---@class subfolder
----@field name string
+---@field subpath string    -- path of the subfolder starting at notebook's root. eg subfolders[1] = {/home/wasi/doc/notes}, subfolders[2] = {/general_notes} - actual path: /home/wasi/doc/notes/general_notes
 ---@field notes ID[]
 
 
 ---@class Notebook
----@field path? string root path on disk; nil for abstract (virtual) notebooks
+---@field path? string root path on disk; nil for virtual notebooks
 ---@field subfolders subfolder[]
 ---@field new function
 ---@field delete function
