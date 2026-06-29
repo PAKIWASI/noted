@@ -12,7 +12,7 @@ M.options = {
         goto_link = "gd",
         backlinks = "<leader>nb",
         tree      = "<leader>nt",
-        graph    = "<leader>ng"
+        graph     = "<leader>ng"
     },
 }
 

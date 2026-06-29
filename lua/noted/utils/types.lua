@@ -11,10 +11,10 @@
 ---@field link function
 ---@field is_parent function
 ---@field is_child function
----@filed create_file function
+---@field create_file function
+---@field delete_file function
 ---@field read function
 ---@field write function
----@field delete_file function
 ---@field rename function
 
 
@@ -69,6 +69,12 @@
 ---@field sync_all function
 
 
+---@class jsonPayload
+---@field notes table<ID, Note>
+---@field id_struct id_struct
+---@field notebooks table<string, Notebook>
+
+
 ---@alias PickerBackend "auto"|"telescope"|"fzf-lua"|"snacks"|"mini"|"vim.ui.select"
 
 ---@class NotedKeymaps
@@ -85,8 +91,10 @@
 ---@field keymaps          NotedKeymaps
 
 ---@class NotebookNvimConfig
----@field options NotebookNvimOpts,
----@field resolved_picker function,
----@field setup function,
----@field state_path string?,
+---@field options NotebookNvimOpts
+---@field resolved_picker function
+---@field setup function
+---@field state_path string?
 ---@field get_state_path function
+
+

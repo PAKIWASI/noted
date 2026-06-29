@@ -55,7 +55,6 @@ function Note:is_child(other_id)
     return false
 end
 
-
 ---create the .md file on disk for a new note
 ---@return boolean, string?
 function Note:create_file()
