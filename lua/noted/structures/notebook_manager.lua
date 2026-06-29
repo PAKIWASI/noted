@@ -70,9 +70,6 @@ function NotebookManager.load_all()
     ---@cast encoded string
     local decoded = vim.json.decode(encoded)
 
-    -- 1. get each table
-    -- 2. re-attach metatable
-    -- 3. set it in the proper modules
     notebooks = setmetatable(decoded.notebooks, require("noted.structures.notebook"))  -- lazily require notebook metatable
     nm.set_notes(setmetatable(decoded.notes, require('noted.structures.notes')))    -- same here
     nm.set_id_struct(decoded.id_struct)
