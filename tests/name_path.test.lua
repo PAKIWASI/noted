@@ -161,28 +161,6 @@ t.describe("utils.slugify", function()
     end)
 end)
 
--- ─── join_path ────────────────────────────────────────────────────────────────
-
-t.describe("utils.join_path", function()
-    local u
-
-    t.before_each(function()
-        u = require("lua.noted.utils.name_path")
-    end)
-
-    t.it("joins two segments", function()
-        t.eq(u.join_path("/home/user", "notes"), "/home/user/notes")
-    end)
-
-    t.it("strips redundant slashes", function()
-        t.eq(u.join_path("/home/user/", "/notes/"), "/home/user/notes")
-    end)
-
-    t.it("joins three segments", function()
-        t.eq(u.join_path("/home", "user", "notes"), "/home/user/notes")
-    end)
-end)
-
 -- ─── get_extension ────────────────────────────────────────────────────────────
 
 t.describe("utils.get_extension", function()

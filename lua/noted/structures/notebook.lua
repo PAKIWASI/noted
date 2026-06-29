@@ -41,29 +41,13 @@ end
 ---@return subfolder?
 local function find_subfolder(notebook, subpath)
     for _, v in ipairs(notebook.subfolders) do
-        if v.name == subpath then
+        if v.subpath == subpath then
             return v
         end
     end
     return nil
 end
 
----return a subfoler by name only (not path), or nil if not found
----@param notebook Notebook
----@param subname string
----@return subfolder?
-local function find_subfolder_by_name(notebook, subname)
-    for _, v in ipairs(notebook.subfolders) do
-        local name = np.extract_dir_name(v.subpath) --TODO: implement this func
-        if name == subname then
-            return v
-        end
-    end
-    return nil
-end
-
-
--- TODO: should we take input by name or by subpath?
 ---add a note id to a subfolder. returns true on success, false if subfolder not found.
 ---@param id ID
 ---@param subpath string
@@ -107,7 +91,7 @@ end
 function Notebook:create_subfolder(subpath)
     assert(self:is_real(), "cannot create subfolder on virtual notebook")
     local path = vim.fs.joinpath(self.path, subpath)
-    local ok, err = fs.mkdir(path)
+    local ok, err = fs.mkdirp(path)
     if not ok then return false, err end
     table.insert(self.subfolders, { subpath = subpath, notes = {} })
     return true

@@ -56,12 +56,6 @@ function M.extract_dir(fullpath)
     return fullpath:match("(.*/)[^/]*$") or ""
 end
 
----get the final directory name
----@param subpath string eg "/general_notes/todos/"
----@return string  -- eg "todos"
-function M.extract_dir_name(subpath)
-end
-
 ---check if a string is a valid title (not empty, no slashes, no .md extension)
 ---@param title string
 ---@return boolean
