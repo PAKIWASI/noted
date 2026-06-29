@@ -44,6 +44,7 @@ end
 ---@param id ID
 function NoteManager.deassign(id)
     assert(not free_ids[id], "id already freed")
+    assert(id < counter, "id was never assigned")
     free_ids[id] = true
 end
 

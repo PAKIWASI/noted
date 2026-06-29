@@ -1,7 +1,5 @@
 local t = require("tests.runner")
 
--- NoteManager is a stateful singleton — clear package.loaded between suites
--- so each describe block starts from a clean slate.
 local function fresh()
     package.loaded["noted.structures.note_manager"] = nil
     return require("noted.structures.note_manager")
@@ -28,6 +26,23 @@ t.describe("note_manager assign/deassign", function()
         t.eq(nm.assign(), id)
     end)
 
+    t.it("recycled id is no longer free after re-assign", function()
+        local id = nm.assign()
+        nm.deassign(id)
+        nm.assign()   -- consumes the recycled slot
+        t.is_false(nm.is_free(id))
+    end)
+
+    t.it("counter resumes after recycled ids are exhausted", function()
+        local id0 = nm.assign()  -- 0
+        local id1 = nm.assign()  -- 1
+        nm.deassign(id0)
+        nm.deassign(id1)
+        nm.assign()              -- recycles one freed id
+        nm.assign()              -- recycles the other
+        t.eq(nm.assign(), 2)     -- counter picks up at 2
+    end)
+
     t.it("is_free is true before any assign", function()
         t.is_true(nm.is_free(0))
     end)
@@ -43,10 +58,18 @@ t.describe("note_manager assign/deassign", function()
         t.is_true(nm.is_free(id))
     end)
 
+    t.it("is_free is true for ids beyond the counter", function()
+        t.is_true(nm.is_free(100))
+    end)
+
     t.it("errors on double-free", function()
         local id = nm.assign()
         nm.deassign(id)
         t.has_error(function() nm.deassign(id) end)
+    end)
+
+    t.it("deassigning an id that was never assigned errors", function()
+        t.has_error(function() nm.deassign(99) end)
     end)
 end)
 
@@ -85,16 +108,75 @@ t.describe("note_manager add/remove", function()
     t.it("errors on remove of unknown id", function()
         t.has_error(function() nm.remove(99) end)
     end)
+
+    t.it("multiple notes are independently present", function()
+        local a = { id = nm.assign() }
+        local b = { id = nm.assign() }
+        nm.add(a)
+        nm.add(b)
+        t.is_true(nm.is_present(a.id))
+        t.is_true(nm.is_present(b.id))
+    end)
+
+    t.it("removing one note does not affect another", function()
+        local a = { id = nm.assign() }
+        local b = { id = nm.assign() }
+        nm.add(a)
+        nm.add(b)
+        nm.remove(a.id)
+        t.is_false(nm.is_present(a.id))
+        t.is_true(nm.is_present(b.id))
+    end)
 end)
 
--- ─── id_struct round-trip (serialisation seam) ───────────────────────────────
+-- ─── get_notes / set_notes ───────────────────────────────────────────────────
+
+t.describe("note_manager get_notes / set_notes", function()
+    t.it("get_notes returns the live table", function()
+        local nm   = fresh()
+        local note = { id = nm.assign() }
+        nm.add(note)
+        local notes = nm.get_notes()
+        t.not_nil(notes[note.id])
+    end)
+
+    t.it("get_notes reflects subsequent mutations", function()
+        local nm    = fresh()
+        local notes = nm.get_notes()
+        local note  = { id = nm.assign() }
+        nm.add(note)
+        -- the table returned earlier should show the new note
+        t.not_nil(notes[note.id])
+    end)
+
+    t.it("set_notes replaces the store", function()
+        local nm  = fresh()
+        local old = { id = nm.assign() }
+        nm.add(old)
+
+        local replacement = { [42] = { id = 42, path = "/x.md", outlinks = {}, backlinks = {} } }
+        nm.set_notes(replacement)
+
+        t.is_false(nm.is_present(old.id))
+        t.is_true(nm.is_present(42))
+    end)
+
+    t.it("get_notes after set_notes returns the new table", function()
+        local nm          = fresh()
+        local replacement = { [7] = { id = 7, path = "/y.md", outlinks = {}, backlinks = {} } }
+        nm.set_notes(replacement)
+        t.not_nil(nm.get_notes()[7])
+    end)
+end)
+
+-- ─── id_struct round-trip ────────────────────────────────────────────────────
 
 t.describe("note_manager id_struct round-trip", function()
     t.it("restores counter and free_ids", function()
         local nm1 = fresh()
-        nm1.assign()           -- id 0, counter → 1
-        local id = nm1.assign() -- id 1, counter → 2
-        nm1.deassign(id)       -- free_ids has 1
+        nm1.assign()
+        local id = nm1.assign()
+        nm1.deassign(id)
 
         local s = nm1.get_id_struct()
         t.eq(s.counter, 2)
@@ -102,10 +184,23 @@ t.describe("note_manager id_struct round-trip", function()
 
         local nm2 = fresh()
         nm2.set_id_struct(s)
+        t.eq(nm2.assign(), id)  -- recycled first
+        t.eq(nm2.assign(), 2)   -- counter continues
+    end)
 
-        -- recycled id comes back first
-        t.eq(nm2.assign(), id)
-        -- then the counter continues
-        t.eq(nm2.assign(), 2)
+    t.it("get_id_struct with no assigns returns counter 0 and empty free_ids", function()
+        local nm = fresh()
+        local s  = nm.get_id_struct()
+        t.eq(s.counter, 0)
+        t.eq(s.free_ids, {})
+    end)
+
+    t.it("set_id_struct affects is_free", function()
+        local nm = fresh()
+        nm.set_id_struct({ counter = 5, free_ids = { [2] = true } })
+        t.is_true(nm.is_free(2))
+        t.is_false(nm.is_free(3))  -- assigned (counter > 3, not in free_ids)
     end)
 end)
+
+t.run()

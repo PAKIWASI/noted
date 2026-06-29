@@ -1,4 +1,4 @@
---- Minimal test runner for pure-Lua modules (no Neovim required).
+--- Minimal test runner for pure-Lua modules (no Neovim required).\
 ---
 --- Usage:
 ---   lua tests/runner.lua [test_file ...]
@@ -47,9 +47,7 @@ vim.uv         = vim.uv or {
     end
 }
 
--- add other vim stubs here as more modules need them
--- vim.fn  = vim.fn  or {}
--- vim.api = vim.api or {}
+vim.fn         = vim.fn or {}
 ---@diagnostic enable
 
 -- ─── module ──────────────────────────────────────────────────────────────────
@@ -59,6 +57,9 @@ local M        = {}
 -- state
 local _suites  = {}    -- { name, before_each, tests[] }
 local _current = nil   -- suite being defined right now
+
+-- set to true by the CLI entry point so t.run() in test files becomes a no-op
+M._cli_mode    = false
 
 local PASS     = green("✓")
 local FAIL     = red("✗")
@@ -238,11 +239,21 @@ end
 
 -- ─── runner ──────────────────────────────────────────────────────────────────
 
----run all registered test suites and print results
+---print results for all registered suites and return pass/fail
+---when called from a test file directly (not via CLI), also calls os.exit
 ---@return boolean  true if every test passed
 function M.run()
+    -- in CLI mode the CLI entry point owns printing the summary and exiting;
+    -- individual t.run() calls in test files are no-ops
+    if M._cli_mode then return true end
+
+    return M._run_and_print()
+end
+
+---internal: run all suites, print results, return success boolean
+---@return boolean
+function M._run_and_print()
     local total, passed, failed = 0, 0, 0
-    local failures = {}
 
     for _, suite in ipairs(_suites) do
         io.write("\n" .. bold(suite.name) .. "\n")
@@ -255,11 +266,6 @@ function M.run()
                 if not ok then
                     io.write("  " .. FAIL .. " [before_each] " .. tostring(err) .. "\n")
                     failed = failed + 1
-                    table.insert(failures, {
-                        suite = suite.name,
-                        test  = test.name,
-                        err   = "before_each failed: " .. tostring(err),
-                    })
                     goto continue
                 end
             end
@@ -273,11 +279,6 @@ function M.run()
                     io.write("  " .. FAIL .. " " .. test.name .. "\n")
                     io.write("      " .. dim(tostring(err):gsub("\n", "\n      ")) .. "\n")
                     failed = failed + 1
-                    table.insert(failures, {
-                        suite = suite.name,
-                        test  = test.name,
-                        err   = tostring(err),
-                    })
                 end
             end
 
@@ -292,38 +293,30 @@ function M.run()
         io.write(green(string.format("  %d/%d passed", passed, total)) .. "\n")
     end
 
-    -- exit code
-    if failed > 0 then
-        os.exit(1)
-    end
     return failed == 0
 end
 
 -- ─── CLI entry point (when run directly: lua tests/runner.lua) ───────────────
 
--- detect if this file is the main script being run
 local is_main = arg and arg[0] and arg[0]:match("runner%.lua$")
 
 if is_main then
-    -- set up require path so test files can do require("noted.xxx")
-    local sep         = package.config:sub(1, 1) -- "/" on unix, "\" on windows
-    local runner_path = arg[0]           -- e.g. "tests/runner.lua"
+    local sep         = package.config:sub(1, 1)
+    local runner_path = arg[0]
     local tests_dir   = runner_path:match("(.*" .. sep .. ")") or ("." .. sep)
     local plugin_root = tests_dir .. ".." .. sep
 
-    package.path      = plugin_root .. "lua" .. sep .. "?.lua;"
+    package.path = plugin_root .. "lua" .. sep .. "?.lua;"
         .. plugin_root .. "lua" .. sep .. "?" .. sep .. "init.lua;"
-        .. tests_dir .. "?.lua;"          -- so test files can require("tests.runner")
+        .. tests_dir .. "?.lua;"
         .. package.path
 
-    -- collect test files: either from argv or by globbing tests/*.test.lua
-    local files       = {}
+    local files = {}
     if #arg > 0 then
         for _, f in ipairs(arg) do
             table.insert(files, f)
         end
     else
-        -- glob via ls; pattern explicitly excludes runner.lua
         local handle = io.popen("ls " .. tests_dir .. "*.test.lua 2>/dev/null")
         if handle then
             for line in handle:lines() do
@@ -338,9 +331,8 @@ if is_main then
         os.exit(0)
     end
 
-    -- Register ourselves so test files' require("tests.runner") returns this
-    -- already-loaded module instead of re-executing runner.lua.
     package.loaded["tests.runner"] = M
+    M._cli_mode = true   -- suppress t.run() calls inside test files
 
     for _, f in ipairs(files) do
         io.write("Loading " .. f .. "\n")
@@ -351,7 +343,10 @@ if is_main then
         end
     end
 
-    M.run()
+    -- single run after all files are loaded — suites from every file are here
+    if not M._run_and_print() then
+        os.exit(1)
+    end
 end
 
 return M

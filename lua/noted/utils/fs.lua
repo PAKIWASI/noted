@@ -20,7 +20,7 @@ end
 ---@return boolean, string?
 function M.mkdirp(path)
     local ok = vim.fn.mkdir(path, "p")
-    if not ok then
+    if ok == 0 then
         return false, "mkdir -p failed: " .. path
     end
     return true
