@@ -1,7 +1,6 @@
 
 local nbm = require('noted.structures.notebook_manager')
 local fs = require("noted.utils.fs")
-local np = require('noted.utils.name_path')
 
 
 ---@class Notebook
@@ -15,7 +14,9 @@ function Notebook.new(name, path)
     local notebook = setmetatable({
         path = path,
         subfolders = {
-            { subpath = name, notes = {} } -- [1] is always the root subfolder, it has the FULLPATH. rest of subfolders have path starting from root
+            { subpath = name, notes = {} }
+            -- [1] is always the root subfolder, it's subpath stores the notebook's name
+            -- rest of subfolders have path starting from notebook root
         },
     }, Notebook)
     nbm.add(notebook)
@@ -32,6 +33,8 @@ function Notebook:is_real()
     return self.path ~= nil
 end
 
+---subfolders[1].subpath is actually the name of the notebook
+---@return string
 function Notebook:get_name()
     return self.subfolders[1].subpath
 end
@@ -85,15 +88,25 @@ function Notebook:create_dir()
     return fs.mkdirp(self.path)
 end
 
----create a named subfolder under the notebook root
----@param subpath string
+---create a named subfolder under the notebook root, registering all intermediate paths
+---@param subpath string e.g. "projects/"
 ---@return boolean, string?
 function Notebook:create_subfolder(subpath)
     assert(self:is_real(), "cannot create subfolder on virtual notebook")
+
     local path = vim.fs.joinpath(self.path, subpath)
     local ok, err = fs.mkdirp(path)
     if not ok then return false, err end
-    table.insert(self.subfolders, { subpath = subpath, notes = {} })
+
+    -- register each intermediate segment if not already present
+    local accumulated = ""
+    for segment in subpath:gmatch("[^/]+") do
+        accumulated = accumulated == "" and segment or (accumulated .. "/" .. segment)
+        if not find_subfolder(self, accumulated) then
+            table.insert(self.subfolders, { subpath = accumulated, notes = {} })
+        end
+    end
+
     return true
 end
 

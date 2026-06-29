@@ -1,5 +1,6 @@
 
 local fs = require("noted.utils.fs")
+local config = require("noted.config")
 
 
 
@@ -31,8 +32,8 @@ end
 ---@param nbs table<string, Notebook>
 function NotebookManager.save_all(notes, id_struct, nbs)
 
-    -- TODO: should we set this here or at config level?
-    local STATE_PATH = vim.fs.joinpath(vim.fn.stdpath("data"), "noted-state.json")
+    local state_path = config.get_state_path()
+
     -- strip metatables: vim.json can only encode plain tables
     local notes_plain = {}
     for id, note in pairs(notes) do
@@ -57,7 +58,7 @@ function NotebookManager.save_all(notes, id_struct, nbs)
         notebooks  = nbs_plain,
     })
 
-    local ok, err = fs.write(STATE_PATH, payload)
+    local ok, err = fs.write(state_path, payload)
     if not ok then
         vim.notify("noted: save failed: " .. (err or "?"), vim.log.levels.ERROR)
     end

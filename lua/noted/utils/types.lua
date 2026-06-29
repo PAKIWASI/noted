@@ -11,6 +11,11 @@
 ---@field link function
 ---@field is_parent function
 ---@field is_child function
+---@filed create_file function
+---@field read function
+---@field write function
+---@field delete_file function
+---@field rename function
 
 
 ---central store and id allocator for all notes across all notebooks
@@ -35,8 +40,12 @@
 
 ---each notebook has one root subfolder (index 1) and zero or more named subfolders
 ---@class subfolder
----@field subpath string    -- path of the subfolder starting at notebook's root. eg subfolders[1] = {/home/wasi/doc/notes}, subfolders[2] = {/general_notes} - actual path: /home/wasi/doc/notes/general_notes
+---@field subpath string
 ---@field notes ID[]
+--[[ subpath is path of the subfolder starting at notebook's root. (except for subfolders[1])
+--  eg path=/home/wasi/doc/notes, subfolders[1] = {"notes"} (it stores notebook name), subfolders[2] = {general_notes}
+--  actual path for 2: /home/wasi/doc/notes/general_notes
+--]]
 
 
 ---@class Notebook
@@ -45,8 +54,11 @@
 ---@field new function
 ---@field delete function
 ---@field is_real function
+---@field get_name function
 ---@field add_note function
 ---@field remove_note function
+---@field create_dir function
+---@field create_subfolder function
 
 
 ---@class NotebookManager
@@ -63,12 +75,18 @@
 ---@field goto_link string  keymap in noted md buffers to follow [[link]] under cursor
 ---@field backlinks string  open backlinks picker for current note
 ---@field tree      string  open tree view for current note's notebook
+---@field graph     string  open graph view for current note's notebook
 
----@class NotebookNvimConfig
+---@class NotebookNvimOpts
 ---@field default_notebook string?          used when a command needs one and none given; nil = always prompt
 ---@field link_pattern     string           Lua pattern to extract link targets from [[…]]
----@field index_on_save    boolean          re-index + save on every BufWritePost in a noted buffer
+---@field index_on_save    boolean          re-index + save on every BufWritePost in a noted buffer -- TODO: is this expensive?
 ---@field picker           PickerBackend    picker backend; "auto" probes in order: snacks → telescope → fzf-lua → mini → vim.ui.select
 ---@field keymaps          NotedKeymaps
 
-
+---@class NotebookNvimConfig
+---@field options NotebookNvimOpts,
+---@field resolved_picker function,
+---@field setup function,
+---@field state_path string?,
+---@field get_state_path function

@@ -1,9 +1,10 @@
+---@class NotebookNvimConfig
 local M = {}
 
 
----@type NotebookNvimConfig
+---@type NotebookNvimOpts
 M.options = {
-    default_notebook = "",
+    default_notebook = nil,
     link_pattern     = "%[%[(.-)%]%]",
     index_on_save    = true,
     picker           = "auto",
@@ -11,17 +12,23 @@ M.options = {
         goto_link = "gd",
         backlinks = "<leader>nb",
         tree      = "<leader>nt",
+        graph    = "<leader>ng"
     },
 }
 
+---comment
+---@param opts NotebookNvimOpts?
 function M.setup(opts)
-    M.options = vim.tbl_deep_extend("force", vim.deepcopy(M.defaults), opts or {})
+    M.options = vim.tbl_deep_extend("force", vim.deepcopy(M.options), opts or {})
 end
 
----lazily resolve state_path so vim.fn.stdpath is never called at module load time
----@return string
-function M.state_path()
-    return vim.fs.joinpath(vim.fn.stdpath("data"), "noted-state.json")
+---comment
+---@return string?
+function M.get_state_path()
+    if not M.state_path then
+        M.state_path = vim.fs.joinpath(vim.fn.stdpath("data"), "noted-state.json")
+    end
+    return M.state_path
 end
 
 -- picker resolution

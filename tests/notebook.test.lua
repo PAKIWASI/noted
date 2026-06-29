@@ -4,6 +4,7 @@ local t = require("tests.runner")
 local function fresh()
     package.loaded["noted.structures.notebook_manager"] = nil
     package.loaded["noted.structures.notebook"]         = nil
+    package.loaded["noted.config"]                      = nil
     return require("noted.structures.notebook")
 end
 
