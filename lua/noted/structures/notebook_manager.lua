@@ -1,9 +1,7 @@
 
 local fs     = require("noted.utils.fs")
 local config = require("noted.config")
-local Note   = require("noted.structures.note")
-local nm = require("noted.structures.note_manager")
-local Notebook = require("noted.structures.notebook")
+local nm     = require("noted.structures.note_manager")
 
 
 ---common map of notebook name to notebook
@@ -32,8 +30,9 @@ end
 ---save everything as json to nvim's default data directory (.local/state?)
 function NotebookManager.save_all()
     -- strip metatables: vim.json can only encode plain tables
+    local notes = nm.get_notes()
     local notes_plain = {}
-    for id, note in pairs(nm.get_notes()) do
+    for id, note in pairs(notes) do
         notes_plain[tostring(id)] = {
             path      = note.path,
             outlinks  = note.outlinks,
@@ -68,20 +67,29 @@ function NotebookManager.load_all()
         vim.notify("noted: load failed: " .. err, vim.log.levels.ERROR)
     end
 
-    ---@type jsonPayload
-    local decoded = vim.json.decode(encoded) -- we already do nil check, why warning?
+    ---@cast encoded string
+    local decoded = vim.json.decode(encoded)
 
     -- 1. get each table
     -- 2. re-attach metatable
     -- 3. set it in the proper modules
-    notebooks = setmetatable(decoded.notebooks, Notebook)
-    nm.set_notes(setmetatable(decoded.notes, Note))
+    notebooks = setmetatable(decoded.notebooks, require("noted.structures.notebook"))  -- lazily require notebook metatable
+    nm.set_notes(setmetatable(decoded.notes, require('noted.structures.notes')))    -- same here
     nm.set_id_struct(decoded.id_struct)
 end
 
 
 ---if user makes external changes, sync them (move/del note, modify link etc)
 function NotebookManager.sync_all()
+    -- we assume we have loaded state into memory prior to calling this
+
+    -- sync notes
+    local notes = nm.get_notes()
+
+    -- sync ids
+
+    -- sync notebooks
+
 end
 
 

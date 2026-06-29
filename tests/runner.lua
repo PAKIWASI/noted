@@ -25,7 +25,12 @@
 
 -- ─── stub vim.* so modules load without Neovim ───────────────────────────────
 
--- TODO: colored output?
+local use_color = os.getenv("NO_COLOR") == nil and os.getenv("TERM") ~= nil
+
+local function green(s)  return use_color and ("\27[32m" .. s .. "\27[0m") or s end
+local function red(s)    return use_color and ("\27[31m" .. s .. "\27[0m") or s end
+local function bold(s)   return use_color and ("\27[1m"  .. s .. "\27[0m") or s end
+local function dim(s)    return use_color and ("\27[2m"  .. s .. "\27[0m") or s end
 
 ---@diagnostic disable
 vim            = vim or {}
@@ -55,8 +60,8 @@ local M        = {}
 local _suites  = {}    -- { name, before_each, tests[] }
 local _current = nil   -- suite being defined right now
 
-local PASS     = "✓"
-local FAIL     = "✗"
+local PASS     = green("✓")
+local FAIL     = red("✗")
 
 -- ─── suite / test registration ───────────────────────────────────────────────
 
@@ -240,7 +245,7 @@ function M.run()
     local failures = {}
 
     for _, suite in ipairs(_suites) do
-        io.write("\n" .. suite.name .. "\n")
+        io.write("\n" .. bold(suite.name) .. "\n")
 
         for _, test in ipairs(suite.tests) do
             total = total + 1
@@ -266,7 +271,7 @@ function M.run()
                     passed = passed + 1
                 else
                     io.write("  " .. FAIL .. " " .. test.name .. "\n")
-                    io.write("      " .. tostring(err):gsub("\n", "\n      ") .. "\n")
+                    io.write("      " .. dim(tostring(err):gsub("\n", "\n      ")) .. "\n")
                     failed = failed + 1
                     table.insert(failures, {
                         suite = suite.name,
@@ -280,13 +285,12 @@ function M.run()
         end
     end
 
-    -- summary
     io.write(string.rep("─", 50) .. "\n")
-    io.write(string.format("  %d/%d passed", passed, total))
     if failed > 0 then
-        io.write(string.format("  %d FAILED", failed))
+        io.write(red(string.format("  %d/%d passed  %d FAILED", passed, total, failed)) .. "\n")
+    else
+        io.write(green(string.format("  %d/%d passed", passed, total)) .. "\n")
     end
-    io.write("\n")
 
     -- exit code
     if failed > 0 then
