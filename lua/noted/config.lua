@@ -2,7 +2,6 @@
 local M = {}
 
 
----@type NotebookNvimOpts
 M.options = {
     default_notebook = nil,
     link_pattern     = "%[%[(.-)%]%]",
@@ -16,13 +15,11 @@ M.options = {
     },
 }
 
----comment
 ---@param opts NotebookNvimOpts?
 function M.setup(opts)
     M.options = vim.tbl_deep_extend("force", vim.deepcopy(M.options), opts or {})
 end
 
----comment
 ---@return string?
 function M.get_state_path()
     if not M.state_path then
@@ -31,7 +28,6 @@ function M.get_state_path()
     return M.state_path
 end
 
--- picker resolution
 
 ---probe in priority order and return the first available backend name
 ---@return PickerBackend

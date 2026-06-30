@@ -13,7 +13,6 @@ local notebooks = {}
 local NotebookManager = {}
 
 ---add a new notebook
----@param notebook Notebook
 function NotebookManager.add(notebook)
     local subpath = notebook.subfolders[1].subpath  -- subfolders[1] actually stores the name for notebook
     assert(notebooks[subpath] == nil, "notebook with this name is already present!")
@@ -21,7 +20,6 @@ function NotebookManager.add(notebook)
 end
 
 ---remove a notebook from storage
----@param subpath string
 function NotebookManager.remove(subpath)
     assert(notebooks[subpath], "notebook with name is not present")
     notebooks[subpath] = nil
@@ -29,7 +27,7 @@ end
 
 ---save everything as json to nvim's default data directory (.local/state?)
 function NotebookManager.save_all()
-    -- strip metatables: vim.json can only encode plain tables
+    -- strip metatables, vim.json can only encode plain tables
     local notes = nm.get_notes()
     local notes_plain = {}
     for id, note in pairs(notes) do
@@ -54,25 +52,27 @@ function NotebookManager.save_all()
         notebooks = nbs_plain,
     })
 
-    local ok, err = fs.write(config.get_state_path(), payload)
-    if not ok then
-        vim.notify("noted: save failed: " .. (err or "?"), vim.log.levels.ERROR)
-    end
+    return fs.write(config.get_state_path(), payload)
 end
 
 ---load all notebooks, notes and id state from state file
 function NotebookManager.load_all()
     local encoded, err = fs.read(config.get_state_path())
     if err then
-        vim.notify("noted: load failed: " .. err, vim.log.levels.ERROR)
+        return false, err
     end
 
-    ---@cast encoded string
+    ---@cast encoded string removing the nullable
     local decoded = vim.json.decode(encoded)
+    if not decoded then -- TODO: is this needed?
+        return false, "json decode failed"
+    end
 
     notebooks = setmetatable(decoded.notebooks, require("noted.structures.notebook"))  -- lazily require notebook metatable
     nm.set_notes(setmetatable(decoded.notes, require('noted.structures.notes')))    -- same here
     nm.set_id_struct(decoded.id_struct)
+
+    return true, nil
 end
 
 
@@ -82,6 +82,8 @@ function NotebookManager.sync_all()
 
     -- sync notes
     local notes = nm.get_notes()
+    for _, note in ipairs(notes) do
+    end
 
     -- sync ids
 

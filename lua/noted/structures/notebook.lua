@@ -7,9 +7,6 @@ local fs = require("noted.utils.fs")
 local Notebook = {}
 Notebook.__index = Notebook
 
----@param name string
----@param path? string
----@return Notebook
 function Notebook.new(name, path)
     local notebook = setmetatable({
         path = path,
@@ -28,18 +25,17 @@ function Notebook:delete()
 end
 
 ---returns true if notebook is tied to an actual folder on disk
----@return boolean
 function Notebook:is_real()
     return self.path ~= nil
 end
 
 ---subfolders[1].subpath is actually the name of the notebook
----@return string
 function Notebook:get_name()
     return self.subfolders[1].subpath
 end
 
 ---return a subfolder by subpath, or nil if not found
+---@param notebook Notebook
 ---@param subpath string
 ---@return subfolder?
 local function find_subfolder(notebook, subpath)
@@ -52,9 +48,6 @@ local function find_subfolder(notebook, subpath)
 end
 
 ---add a note id to a subfolder. returns true on success, false if subfolder not found.
----@param id ID
----@param subpath string
----@return boolean
 function Notebook:add_note(id, subpath)
     local subf = find_subfolder(self, subpath)
     if not subf then
@@ -65,8 +58,6 @@ function Notebook:add_note(id, subpath)
 end
 
 ---remove a note id from whichever subfolder holds it
----@param id ID
----@return boolean
 function Notebook:remove_note(id)
     for _, subf in ipairs(self.subfolders) do
         for i, note_id in ipairs(subf.notes) do
@@ -80,7 +71,6 @@ function Notebook:remove_note(id)
 end
 
 ---create the notebook root directory on disk (only for real notebooks)
----@return boolean, string?
 function Notebook:create_dir()
     if not self:is_real() then
         return false, "virtual notebook has no path"
@@ -89,8 +79,6 @@ function Notebook:create_dir()
 end
 
 ---create a named subfolder under the notebook root, registering all intermediate paths
----@param subpath string e.g. "projects/"
----@return boolean, string?
 function Notebook:create_subfolder(subpath)
     assert(self:is_real(), "cannot create subfolder on virtual notebook")
 

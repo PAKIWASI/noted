@@ -64,9 +64,9 @@
 ---@class NotebookManager
 ---@field add      fun(notebook: Notebook)
 ---@field remove   fun(subpath: string)
----@field save_all fun()
----@field load_all fun()
----@field sync_all fun()
+---@field save_all fun(): boolean, string?
+---@field load_all fun(): boolean, string?
+---@field sync_all fun(): boolean, string?
 
 
 ---@alias PickerBackend "auto"|"telescope"|"fzf-lua"|"snacks"|"mini"|"vim.ui.select"

@@ -8,8 +8,6 @@ local np = require("noted.utils.name_path")
 local Note = {}
 Note.__index = Note
 
----@param fullpath string
----@return Note
 function Note.new(fullpath)
     local note = setmetatable({
         id       = nm.assign(),
@@ -28,7 +26,6 @@ end
 
 ---link the current note to another note.
 ---`self` note is the source (outlink) and `other` is the target (backlink).
----@param other Note
 function Note:link(other)
     assert(self.id ~= other.id, "a note cannot link to itself")
     table.insert(other.backlinks, self.id)
@@ -36,8 +33,6 @@ function Note:link(other)
 end
 
 ---returns true if `self` has an outlink to `other_id`
----@param other_id ID
----@return boolean
 function Note:is_parent(other_id)
     for _, id in ipairs(self.outlinks) do
         if id == other_id then return true end
@@ -46,8 +41,6 @@ function Note:is_parent(other_id)
 end
 
 ---returns true if `other_id` has an outlink to `self`
----@param other_id ID
----@return boolean
 function Note:is_child(other_id)
     for _, id in ipairs(self.backlinks) do
         if id == other_id then return true end
@@ -56,25 +49,21 @@ function Note:is_child(other_id)
 end
 
 ---create the .md file on disk for a new note
----@return boolean, string?
 function Note:create_file()
     if fs.kind(self.path) then
         return false, "file already exists: " .. self.path
     end
-    -- write a minimal YAML front-matter header
+    -- TODO: write a minimal YAML front-matter header
     local content = "# " .. np.extract_title(self.path) .. "\n\n"
     return fs.write(self.path, content)
 end
 
 ---read raw markdown content
----@return string?, string?
 function Note:read()
     return fs.read(self.path)
 end
 
 ---overwrite content (e.g. after editing links)
----@param content string
----@return boolean, string?
 function Note:write(content)
     return fs.write(self.path, content)
 end
@@ -88,8 +77,6 @@ function Note:delete_file()
 end
 
 ---rename the file on disk and update self.path
----@param new_path string
----@return boolean, string?
 function Note:rename(new_path)
     local ok, err = fs.rename(self.path, new_path)
     if not ok then return false, err end
