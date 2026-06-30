@@ -20,6 +20,11 @@ function Notebook.new(name, path)
     return notebook
 end
 
+-- TODO: do this
+---given a folder, recursively create a notebook and discover all notes
+function Notebook.new_from_folder(name, path)
+end
+
 function Notebook:delete()
     nbm.remove(self.subfolders[1].subpath)
 end
@@ -76,6 +81,15 @@ function Notebook:create_dir()
         return false, "virtual notebook has no path"
     end
     return fs.mkdirp(self.path)
+end
+
+---checks if folder for real notebooks exists or not
+function Notebook:dir_exists()
+    if not self.path then
+        return false
+    end
+    local kind = fs.kind(self.path)
+    return kind ~= nil and kind == 'directory'
 end
 
 ---create a named subfolder under the notebook root, registering all intermediate paths

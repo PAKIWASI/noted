@@ -25,6 +25,13 @@ function NotebookManager.remove(subpath)
     notebooks[subpath] = nil
 end
 
+---remove a note from every notebook
+function NotebookManager.remove_note(id)
+    for _, nb in ipairs(notebooks) do
+        nb:remove_note(id)
+    end
+end
+
 ---save everything as json to nvim's default data directory (.local/state?)
 function NotebookManager.save_all()
     -- strip metatables, vim.json can only encode plain tables
@@ -83,14 +90,34 @@ function NotebookManager.sync_all()
     -- sync notes
     local notes = nm.get_notes()
     for _, note in ipairs(notes) do
+        if note:file_exists() then
+            -- file still exists, check links
+
+        else -- file was deleted by user, delete the note
+            NotebookManager.remove_note(note.id)
+            note:delete()
+        end
     end
 
-    -- sync ids
-
     -- sync notebooks
+    -- we only care about notebooks tied to a folder
+    for _, nb in ipairs(notebooks) do
+        if nb:is_real() then
+            if nb:dir_exists() then
+
+            else -- user deleted the folder
+                
+            end
+        end
+    end
 
 end
 
+
+
+-- TODO: does this belong here or in notebook?
+function NotebookManager.sync_curr_buf()
+end
 
 
 return NotebookManager

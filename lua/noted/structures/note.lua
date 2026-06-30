@@ -63,6 +63,12 @@ function Note:read()
     return fs.read(self.path)
 end
 
+---check if file with note's path exists on disk
+function Note:file_exists()
+    local kind = fs.kind(self.path)
+    return kind ~= nil and kind == 'file'
+end
+
 ---overwrite content (e.g. after editing links)
 function Note:write(content)
     return fs.write(self.path, content)

@@ -16,6 +16,7 @@
 ---@field read         fun(self: Note): string?, string?
 ---@field write        fun(self: Note, content: string): boolean, string?
 ---@field rename       fun(self: Note, new_path: string): boolean, string?
+---@field file_exists  fun(self: Note): boolean
 
 
 ---central store and id allocator for all notes across all notebooks
@@ -58,15 +59,17 @@
 ---@field add_note         fun(self: Notebook, id: ID, subpath: string): boolean
 ---@field remove_note      fun(self: Notebook, id: ID): boolean
 ---@field create_dir       fun(self: Notebook): boolean, string?
+---@field dir_exists       fun(self: Notebook): boolean
 ---@field create_subfolder fun(self: Notebook, subpath: string): boolean, string?
 
 
 ---@class NotebookManager
----@field add      fun(notebook: Notebook)
----@field remove   fun(subpath: string)
----@field save_all fun(): boolean, string?
----@field load_all fun(): boolean, string?
----@field sync_all fun(): boolean, string?
+---@field add         fun(notebook: Notebook)
+---@field remove      fun(subpath: string)
+---@field remove_note fun(id: ID)
+---@field save_all    fun(): boolean, string?
+---@field load_all    fun(): boolean, string?
+---@field sync_all    fun(): boolean, string?
 
 
 ---@alias PickerBackend "auto"|"telescope"|"fzf-lua"|"snacks"|"mini"|"vim.ui.select"
