@@ -104,13 +104,22 @@ function NotebookManager.sync_all()
     for _, nb in ipairs(notebooks) do
         if nb:is_real() then
             if nb:dir_exists() then
+                -- sync subfolders, and notes
+                for _, subf in ipairs(nb.subfolders) do
+                    --check if subfolder exists
+                    local kind = fs.kind(subf.subpath) -- TODO: we need to skip first iteration, subf[1].subpath is only the name of the notebook
+                    if  kind ~= nil and kind == 'directory' then
+                        -- check if each subfolder (on disk) has the notes in it's array. if not, delete the note id
+                    end
+                end
 
-            else -- user deleted the folder
-                
+            else -- user deleted the folder, delete the notebook
+                notebooks[nb:get_name()] = nil
             end
-        end
+        end -- dont do anything for virtual notebooks
     end
 
+    return true, ""
 end
 
 
