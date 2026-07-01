@@ -22,6 +22,7 @@ function NoteManager.remove(id)
     notes[id] = nil
 end
 
+---return true if note with `id` is in our global notes collection
 function NoteManager.is_present(id)
     return notes[id] ~= nil
 end
@@ -42,6 +43,7 @@ function NoteManager.deassign(id)
     free_ids[id] = true
 end
 
+---return true if `id` is free (either in free list or id above counter)
 function NoteManager.is_free(id)
     return free_ids[id] == true or id >= counter
 end

@@ -1,6 +1,7 @@
 
-local nbm = require('noted.structures.notebook_manager')
-local fs = require("noted.utils.fs")
+local nbm  = require('noted.structures.notebook_manager')
+local fs   = require("noted.utils.fs")
+local Note = require("noted.structures.note")
 
 
 ---@class Notebook
@@ -20,9 +21,36 @@ function Notebook.new(name, path)
     return notebook
 end
 
--- TODO: do this
 ---given a folder, recursively create a notebook and discover all notes
 function Notebook.new_from_folder(name, path)
+    if fs.kind(path) ~= "directory" then
+        return nil, "not a directory: " .. path
+    end
+
+    local notebook = Notebook.new(name, path)
+
+    ---recursively walk `dir`, registering subfolders and notes as we go
+    ---@param dir string absolute path on disk
+    ---@param subpath string path relative to the notebook root ("" for the root)
+    local function walk(dir, subpath)
+        local entries, err = fs.list_dir(dir)
+        if not entries then return end
+
+        for _, entry in ipairs(entries) do
+            local entry_path = vim.fs.joinpath(dir, entry.name)
+            if entry.kind == "directory" then
+                local child_subpath = subpath == "" and entry.name or (subpath .. "/" .. entry.name)
+                notebook:create_subfolder(child_subpath)
+                walk(entry_path, child_subpath)
+            elseif entry.name:match("%.md$") then
+                local note = Note.new(entry_path)
+                notebook:add_note(note.id, subpath == "" and name or subpath)
+            end
+        end
+    end
+
+    walk(path, "")
+    return notebook
 end
 
 function Notebook:delete()

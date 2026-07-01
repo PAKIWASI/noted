@@ -97,6 +97,22 @@ function M.kind(path)
     return stat.type == "directory" and "directory" or "file"
 end
 
+---list the immediate entries of a directory (non-recursive)
+---@param path string
+---@return {name: string, kind: "file"|"directory"}[]?, string? -- entries, err
+function M.list_dir(path)
+    local handle, err = vim.uv.fs_scandir(path)
+    if not handle then return nil, err end
+
+    local entries = {}
+    while true do
+        local name, kind = vim.uv.fs_scandir_next(handle)
+        if not name then break end
+        table.insert(entries, { name = name, kind = kind == "directory" and "directory" or "file" })
+    end
+    return entries
+end
+
 
 
 return M

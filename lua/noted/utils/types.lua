@@ -53,6 +53,7 @@
 ---@field path? string root path on disk; nil for virtual notebooks
 ---@field subfolders subfolder[]
 ---@field new              fun(name: string, path?: string): Notebook
+---@field new_from_folder  fun(name: string, path: string): Notebook?, string?
 ---@field delete           fun(self: Notebook)
 ---@field is_real          fun(self: Notebook): boolean
 ---@field get_name         fun(self: Notebook): string
@@ -69,7 +70,8 @@
 ---@field remove_note fun(id: ID)
 ---@field save_all    fun(): boolean, string?
 ---@field load_all    fun(): boolean, string?
----@field sync_all    fun(): boolean, string?
+---@field sync_all      fun(): boolean, string?
+---@field sync_curr_buf fun(): boolean, string?
 
 
 ---@alias PickerBackend "auto"|"telescope"|"fzf-lua"|"snacks"|"mini"|"vim.ui.select"

@@ -1,6 +1,9 @@
 local M = {}
 
--- TODO: linux only for now
+-- neovim's vim.fs normalises paths to forward slashes on every platform
+-- (including Windows), so the only platform difference we need to account
+-- for here is what an "absolute path" looks like: a leading "/" on
+-- unix-likes, or a drive prefix like "C:/" on Windows.
 
 ---true if string is not nil and not empty
 ---@param str string
@@ -17,7 +20,9 @@ function M.fullpath_valid(fullpath)
         return false
     end
 
-    if fullpath:sub(1, 1) ~= "/" then
+    local is_unix_root    = fullpath:sub(1, 1) == "/"
+    local is_windows_root = fullpath:match("^%a:/") ~= nil
+    if not (is_unix_root or is_windows_root) then
         return false
     end
 
