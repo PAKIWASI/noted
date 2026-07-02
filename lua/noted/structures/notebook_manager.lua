@@ -38,7 +38,6 @@ end
 
 ---remove a note from every notebook
 function NotebookManager.remove_note(id)
-    -- notebooks is keyed by name, not indexable, so iterate with pairs
     for _, nb in pairs(notebooks) do
         nb:remove_note(id)
     end
@@ -101,7 +100,6 @@ function NotebookManager.sync_all()
 
     -- sync notes
     --------------
-    -- notes are keyed by id, not indexable, so iterate with pairs
     local notes = nm.get_notes()
     for _, note in pairs(notes) do
         if not note:file_exists() then
