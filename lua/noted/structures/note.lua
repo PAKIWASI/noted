@@ -1,7 +1,6 @@
 
 local nm = require('noted.structures.note_manager')
 local fs = require("noted.utils.fs")
-local np = require("noted.utils.name_path")
 
 
 ---@class Note
@@ -53,13 +52,13 @@ function Note:create_file()
     if fs.kind(self.path) then
         return false, "file already exists: " .. self.path
     end
-    local front_matter = string.format(
-        "---\nid: %s\ncreated: %s\n---\n\n",
-        tostring(self.id),
-        os.date("%Y-%m-%dT%H:%M:%S")
-    )
-    local content = front_matter .. "# " .. np.extract_title(self.path) .. "\n\n"
-    return fs.write(self.path, content)
+    -- local front_matter = string.format(
+    --     "---\nid: %s\ncreated: %s\n---\n\n",
+    --     tostring(self.id),
+    --     os.date("%Y-%m-%dT%H:%M:%S")
+    -- )
+    -- local content = front_matter .. "# " .. np.extract_title(self.path) .. "\n\n"
+    return fs.write(self.path, "")
 end
 
 ---read raw markdown content
