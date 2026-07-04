@@ -113,44 +113,54 @@ function NotebookManager.sync_all()
     ------------------
     -- we only care about notebooks tied to a folder
     for name, nb in pairs(notebooks) do
-        if nb:is_real() then
-            if nb:dir_exists() then
-                -- sync subfolders, and notes
-                for i, subf in ipairs(nb.subfolders) do
-                    -- subfolders[1].subpath only stores the notebook's name,
-                    -- its actual path on disk is the notebook root itself
-                    local dir_path = i == 1 and nb.path or vim.fs.joinpath(nb.path, subf.subpath)
-                    local kind = fs.kind(dir_path)
-
-                    if kind == "directory" then
-                        -- drop note ids whose note was already removed above
-                        for j = #subf.notes, 1, -1 do
-                            if not nm.is_present(subf.notes[j]) then
-                                table.remove(subf.notes, j)
-                            end
-                        end
-
-                        -- pick up any .md file the user created directly in the
-                        -- folder outside of noted, and register it as a new note
-                        local entries = fs.list_dir(dir_path)
-                        if entries then
-                            for _, entry in ipairs(entries) do
-                                if entry.kind == "file" and entry.name:match("%.md$") then
-                                    local entry_path = vim.fs.joinpath(dir_path, entry.name)
-                                    if not find_note_by_path(entry_path) then
-                                        local note = require("noted.structures.note").new(entry_path)
-                                        table.insert(subf.notes, note.id)
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
-            else -- user deleted the folder, delete the notebook
-                notebooks[name] = nil
-            end
-        end
         -- virtual notebooks aren't tied to a folder, nothing to sync
+        if not nb:is_real() then goto continue_nb end
+
+        if not nb:dir_exists() then
+            -- user deleted the folder, delete the notebook
+            notebooks[name] = nil
+            goto continue_nb
+        end
+
+        -- sync subfolders, and notes
+        for i, subf in ipairs(nb.subfolders) do
+            -- subfolders[1].subpath only stores the notebook's name,
+            -- its actual path on disk is the notebook root itself
+            local dir_path = i == 1 and nb.path or vim.fs.joinpath(nb.path, subf.subpath)
+            local kind = fs.kind(dir_path)
+
+            if kind ~= "directory" then goto continue_subf end
+
+            -- drop note ids whose note was already removed above
+            for j = #subf.notes, 1, -1 do
+                if not nm.is_present(subf.notes[j]) then
+                    table.remove(subf.notes, j)
+                end
+            end
+
+            -- pick up any .md file the user created directly in the
+            -- folder outside of noted, and register it as a new note
+            local entries = fs.list_dir(dir_path)
+            if not entries then goto continue_subf end
+
+            for _, entry in ipairs(entries) do
+                if entry.kind ~= "file" or not entry.name:match("%.md$") then
+                    goto continue_entry
+                end
+
+                local entry_path = vim.fs.joinpath(dir_path, entry.name)
+                if find_note_by_path(entry_path) then goto continue_entry end
+
+                local note = require("noted.structures.note").new(entry_path)
+                table.insert(subf.notes, note.id)
+
+                ::continue_entry::
+            end
+
+            ::continue_subf::
+        end
+
+        ::continue_nb::
     end
 
     return true, nil
