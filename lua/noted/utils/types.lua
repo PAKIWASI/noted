@@ -2,10 +2,10 @@
 
 
 ---@class Note
----@field id ID unique id for each note
----@field path string full path to the note; the note name is its filename without extension
----@field outlinks ID[] ids of notes that this note links to via [[]]
----@field backlinks ID[] ids of notes that link to this note
+---@field id           ID unique id for each note
+---@field path         string full path to the note; the note name is its filename without extension
+---@field outlinks     ID[] ids of notes that this note links to via [[]]
+---@field backlinks    ID[] ids of notes that link to this note
 ---@field new          fun(fullpath: string): Note
 ---@field delete       fun(self: Note)
 ---@field link         fun(self: Note, other: Note)
@@ -35,14 +35,14 @@
 
 ---exported for persistent storage
 ---@class id_struct
----@field counter ID
+---@field counter  ID
 ---@field free_ids table<ID,boolean>
 
 
 ---each notebook has one root subfolder (index 1) and zero or more named subfolders
 ---@class subfolder
 ---@field subpath string
----@field notes ID[]
+---@field notes   ID[]
 --[[ subpath is path of the subfolder starting at notebook's root. (except for subfolders[1])
 --  eg path=/home/wasi/doc/notes, subfolders[1] = {\"notes\"} (it stores notebook name), subfolders[2] = {general_notes}
 --  actual path for 2: /home/wasi/doc/notes/general_notes
@@ -50,8 +50,8 @@
 
 
 ---@class Notebook
----@field path? string root path on disk; nil for virtual notebooks
----@field subfolders subfolder[]
+---@field path?            string root path on disk; nil for virtual notebooks
+---@field subfolders       subfolder[]
 ---@field new              fun(name: string, path?: string): Notebook
 ---@field new_from_folder  fun(name: string, path: string): Notebook?, string?
 ---@field delete           fun(self: Notebook)
@@ -65,11 +65,11 @@
 
 
 ---@class NotebookManager
----@field add         fun(notebook: Notebook)
----@field remove      fun(subpath: string)
----@field remove_note fun(id: ID)
----@field save_all    fun(): boolean, string?
----@field load_all    fun(): boolean, string?
+---@field add           fun(notebook: Notebook)
+---@field remove        fun(subpath: string)
+---@field remove_note   fun(id: ID)
+---@field save_all      fun(): boolean, string?
+---@field load_all      fun(): boolean, string?
 ---@field sync_all      fun(): boolean, string?
 ---@field sync_curr_buf fun(): boolean, string?
 
@@ -84,7 +84,7 @@
 
 ---@class NotebookNvimOpts
 ---@field default_notebook string?          used when a command needs one and none given; nil = always prompt
----@field link_pattern     string           Lua pattern to extract link targets from [[…]]
+---@field link_pattern     "wikilinks" | "()[] what's this called again?"           Lua pattern to extract link targets from [[…]]
 ---@field index_on_save    boolean          re-index + save on every BufWritePost in a noted buffer (scoped to saved buffer only, not expensive)
 ---@field picker           PickerBackend    picker backend; "auto" probes in order: snacks → telescope → fzf-lua → mini → vim.ui.select
 ---@field keymaps          NotedKeymaps

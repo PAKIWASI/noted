@@ -98,6 +98,7 @@ end
 function NotebookManager.sync_all()
     -- we assume we have loaded state into memory prior to calling this
 
+    -- TODO: sync links in notes?
     -- sync notes
     --------------
     local notes = nm.get_notes()
@@ -153,16 +154,12 @@ function NotebookManager.sync_all()
 
                 local note = require("noted.structures.note").new(entry_path)
                 table.insert(subf.notes, note.id)
-
                 ::continue_entry::
             end
-
             ::continue_subf::
         end
-
         ::continue_nb::
     end
-
     return true, nil
 end
 
@@ -170,6 +167,7 @@ end
 ---lives here (rather than on Note/Notebook) because it needs to mutate
 ---the shared `notebooks` registry: a brand-new file has no note or
 ---notebook membership yet, and only NotebookManager can create both.
+---TODO: also need to check the note itself for links to see if any changed
 ---@return boolean, string?
 function NotebookManager.sync_curr_buf()
     local path = vim.api.nvim_buf_get_name(0)
