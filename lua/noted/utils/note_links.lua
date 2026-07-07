@@ -11,31 +11,36 @@ local M = {}
 ---@return integer|integer[]?   -- offset(s) into line or null if no link
 function M.get_link_offsets(line)
     -- use find to repeatedly find next links by supplying the previous link pos +1 as init pos
-line:find()
+    ---@type integer[]
+    local offsets = {}
+    local num_links = 0
+    local start_idx = 1
+    while start_idx < #line do
+        local s, e = line:find("%[%[*%]%]", start_idx)  -- [[anything inside]]
+        if not s or not e then break end
+        table.insert(offsets, s)
+        num_links = num_links + 1
+        start_idx = e + 1
+    end
+    -- if no links, return null, if only one link (very likely case) then return integer offset.
+    -- If mulitple then return the whole offsets array
+    return num_links == 0 and nil or (num_links == 1 and offsets[1] or offsets)
 end
 
----returns true if [[]] syntax is valid. supports alteranate names with |
+---checks if [[]] syntax is valid. supports alteranate names with |
+---checks if names are valid and slugifies them for storage TODO: do i need to slugify names? and do i write back slugified names in the link?
+---returns the note name and optional alt name
 ---@param line string the line of text containing the link
 ---@param pos integer the offset to the start of the link
-function M.is_valid(line, pos)
-
-end
-
----get the name of the note that is linked.
----If this is null then note does not exist. We will create on other end of call site
----@param line string
----@param pos integer
----@return string?      -- note may not exist yet
-function M.get_note_name(line, pos)
-
-end
-
----get the alt name (if any) of the link
----@param line string
----@param pos integer
----@return string?
-function M.get_alt_name(line, pos)
-
+---@return string?, string?
+function M.extract_names(line, pos)
+    ---@type string
+    local title = line:match("%[%[(*)%]%]", pos)
+    if #title == 0 then return nil end
+    local note_name = title:match("^(%w*)|?")
+    if #note_name == 0 then return nil end
+    local alt_name = title:match"(|(%w*)$)"
+    -- TODO: note doesnot actually NEED an alt name, but if it has one, it needs to be valid
 end
 
 ---get full path to the linked note
