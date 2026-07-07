@@ -1,36 +1,5 @@
----@alias ID integer unique id for each note
 
 
----@class Note
----@field id           ID unique id for each note
----@field path         string full path to the note; the note name is its filename without extension
----@field outlinks     ID[] ids of notes that this note links to via [[]]
----@field backlinks    ID[] ids of notes that link to this note
----@field new          fun(fullpath: string): Note
----@field delete       fun(self: Note)
----@field link         fun(self: Note, other: Note)
----@field is_parent    fun(self: Note, other_id: ID): boolean
----@field is_child     fun(self: Note, other_id: ID): boolean
----@field create_file  fun(self: Note): boolean, string?
----@field delete_file  fun(self: Note): boolean, string?
----@field read         fun(self: Note): string?, string?
----@field write        fun(self: Note, content: string): boolean, string?
----@field rename       fun(self: Note, new_path: string): boolean, string?
----@field file_exists  fun(self: Note): boolean
-
-
----central store and id allocator for all notes across all notebooks
----@class NoteManager
----@field add           fun(note: Note)
----@field remove        fun(id: ID)
----@field is_present    fun(id: ID): boolean
----@field assign        fun(): ID
----@field deassign      fun(id: ID)
----@field is_free       fun(id: ID): boolean
----@field get_notes     fun(): table<ID, Note>
----@field set_notes     fun(saved_notes: table<ID, Note>)
----@field get_id_struct fun(): id_struct
----@field set_id_struct fun(id_struct: id_struct)
 
 
 ---exported for persistent storage
@@ -48,30 +17,6 @@
 --  actual path for 2: /home/wasi/doc/notes/general_notes
 --]]
 
-
----@class Notebook
----@field path?            string root path on disk; nil for virtual notebooks
----@field subfolders       subfolder[]
----@field new              fun(name: string, path?: string): Notebook
----@field new_from_folder  fun(name: string, path: string): Notebook?, string?
----@field delete           fun(self: Notebook)
----@field is_real          fun(self: Notebook): boolean
----@field get_name         fun(self: Notebook): string
----@field add_note         fun(self: Notebook, id: ID, subpath: string): boolean
----@field remove_note      fun(self: Notebook, id: ID): boolean
----@field create_dir       fun(self: Notebook): boolean, string?
----@field dir_exists       fun(self: Notebook): boolean
----@field create_subfolder fun(self: Notebook, subpath: string): boolean, string?
-
-
----@class NotebookManager
----@field add           fun(notebook: Notebook)
----@field remove        fun(subpath: string)
----@field remove_note   fun(id: ID)
----@field save_all      fun(): boolean, string?
----@field load_all      fun(): boolean, string?
----@field sync_all      fun(): boolean, string?
----@field sync_curr_buf fun(): boolean, string?
 
 
 ---@alias PickerBackend "auto"|"telescope"|"fzf-lua"|"snacks"|"mini"|"vim.ui.select"

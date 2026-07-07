@@ -5,6 +5,18 @@ local Note = require("noted.structures.note")
 
 
 ---@class Notebook
+---@field path?            string root path on disk; nil for virtual notebooks
+---@field subfolders       subfolder[]
+---@field new              fun(name: string, path?: string): Notebook
+---@field new_from_folder  fun(name: string, path: string): Notebook?, string?
+---@field delete           fun(self: Notebook)
+---@field is_real          fun(self: Notebook): boolean
+---@field get_name         fun(self: Notebook): string
+---@field add_note         fun(self: Notebook, id: ID, subpath: string): boolean
+---@field remove_note      fun(self: Notebook, id: ID): boolean
+---@field create_dir       fun(self: Notebook): boolean, string?
+---@field dir_exists       fun(self: Notebook): boolean
+---@field create_subfolder fun(self: Notebook, subpath: string): boolean, string?
 local Notebook = {}
 Notebook.__index = Notebook
 

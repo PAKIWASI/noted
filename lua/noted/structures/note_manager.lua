@@ -9,7 +9,18 @@ local counter = 0
 local free_ids = {}
 
 
+---central store and id allocator for all notes across all notebooks
 ---@class NoteManager
+---@field add           fun(note: Note)
+---@field remove        fun(id: ID)
+---@field is_present    fun(id: ID): boolean
+---@field assign        fun(): ID
+---@field deassign      fun(id: ID)
+---@field is_free       fun(id: ID): boolean
+---@field get_notes     fun(): table<ID, Note>
+---@field set_notes     fun(saved_notes: table<ID, Note>)
+---@field get_id_struct fun(): id_struct
+---@field set_id_struct fun(id_struct: id_struct)
 local NoteManager = {}
 
 function NoteManager.add(note)

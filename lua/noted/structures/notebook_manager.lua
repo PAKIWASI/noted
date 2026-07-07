@@ -9,6 +9,13 @@ local notebooks = {}
 
 
 ---@class NotebookManager
+---@field add           fun(notebook: Notebook)
+---@field remove        fun(subpath: string)
+---@field remove_note   fun(id: ID)
+---@field save_all      fun(): boolean, string?
+---@field load_all      fun(): boolean, string?
+---@field sync_all      fun(): boolean, string?
+---@field sync_curr_buf fun(): boolean, string?
 local NotebookManager = {}
 
 ---find an already-registered note by its path, or nil if none matches
