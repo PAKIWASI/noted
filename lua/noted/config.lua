@@ -2,7 +2,7 @@
 local M = {}
 
 
----@type NotebookNvimOpts
+---@class NotebookNvimOpts
 M.options = {
     default_notebook = nil,
     link_pattern     = "wikilinks",
@@ -16,12 +16,10 @@ M.options = {
     },
 }
 
----@param opts NotebookNvimOpts?
 function M.setup(opts)
     M.options = vim.tbl_deep_extend("force", vim.deepcopy(M.options), opts or {})
 end
 
----@return string?
 function M.get_state_path()
     if not M.state_path then
         M.state_path = vim.fs.joinpath(vim.fn.stdpath("data"), "noted-state.json")
@@ -40,8 +38,6 @@ local function detect_picker()
     return "vim.ui.select"
 end
 
----return the resolved backend name (never "auto")
----@return PickerBackend
 function M.resolved_picker()
     local p = M.options.picker or "auto"
     if p == "auto" then return detect_picker() end

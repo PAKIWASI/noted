@@ -36,7 +36,7 @@
 
 ---@class NotebookNvimConfig
 ---@field options          NotebookNvimOpts
----@field resolved_picker  fun(): PickerBackend
+---@field resolved_picker  fun(): PickerBackend     return the resolved backend name (never "auto")
 ---@field setup            fun(opts?: NotebookNvimOpts)
 ---@field state_path       string?
 ---@field get_state_path   fun(): string
