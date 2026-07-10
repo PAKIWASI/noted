@@ -5,15 +5,15 @@
 -- in the same directory as the note that referenced it.
 -- `gd` on a link takes the user to the linked note (creating it first if needed).
 -- sync walks every outlink tag in a note and reconciles it against the
--- in-memory Note graph (see LUA_PATTERNS.md for the pattern reasoning below).
+-- in-memory Note graph
+
+local np = require("noted.utils.name_path")
 
 local M = {}
 
 M.LINK_PATTERN = "%[%[(.-)%]%]"
 
----trim leading/trailing whitespace (kept local so this module has no
----hard dependency on a running Neovim instance, and stays testable
----with the plain-Lua test runner)
+---trim leading/trailing whitespace
 ---@param s string
 ---@return string
 local function trim(s)
@@ -134,7 +134,6 @@ end
 ---@param target string
 ---@return Note?
 function M.find_note_by_title(notes, target)
-    local np = require("noted.utils.name_path")
     local wanted = np.slugify(target)
     for _, note in pairs(notes) do
         if np.slugify(np.extract_title(note.path)) == wanted then
@@ -151,7 +150,6 @@ end
 ---@param target string
 ---@return string
 function M.new_note_path_for_link(from_note_path, target)
-    local np = require("noted.utils.name_path")
     local dir = np.extract_dir(from_note_path)
     local slug = np.slugify(target)
     return dir .. slug .. ".md"

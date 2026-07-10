@@ -3,9 +3,6 @@ local nm = require('noted.structures.note_manager')
 local fs = require("noted.utils.fs")
 
 
----@alias ID integer unique id for each note
-
-
 ---@class Note
 ---@field id           ID unique id for each note
 ---@field path         string full path to the note; the note name is its filename without extension

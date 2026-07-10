@@ -2,12 +2,13 @@
 local M = {}
 
 
----@class NotebookNvimOpts
+---@type NotebookNvimOpts
 M.options = {
     default_notebook = nil,
     link_pattern     = "wikilinks",
     index_on_save    = true,
     picker           = "auto",
+    ---@type NotedKeymaps
     keymaps          = {
         goto_link = "gd",
         backlinks = "<leader>nb",   -- open backlinks picker

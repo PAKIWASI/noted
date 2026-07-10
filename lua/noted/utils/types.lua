@@ -1,5 +1,5 @@
 
-
+---@alias ID integer unique id for each note
 
 
 ---exported for persistent storage

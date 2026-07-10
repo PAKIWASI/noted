@@ -1,9 +1,7 @@
 local M = {}
 
 function M.register()
-
--- do the subcommand thing
-
+    -- do the subcommand thing
 end
 
 --[[

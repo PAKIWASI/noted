@@ -93,10 +93,25 @@ function NotebookManager.load_all()
         return false, "json decode failed"
     end
 
-    -- reset the metatables and assign to the correct modules
-    notebooks = setmetatable(decoded.notebooks, require("noted.structures.notebook")) -- lazily require notebook metatable
-    nm.set_notes(setmetatable(decoded.notes, require('noted.structures.notes')))      -- same here
+    local Note = require('noted.structures.notes');
+    local Notebook = require("noted.structures.notebook");
+
+    local ns = {}
+    for id, plain_note in pairs(decoded.notes) do
+        -- vim.json.decode turns numeric-string keys back into strings;
+        -- ID is expected to be an integer everywhere else (note.id,
+        -- outlinks/backlinks entries), so cast on the way back in.
+        ns[tonumber(id)] = setmetatable(plain_note, Note)
+    end
+
+    local nbs = {}
+    for name, plain_nb in pairs(decoded.notebooks) do
+        nbs[name] = setmetatable(plain_nb, Notebook)
+    end
+
+    nm.set_notes(ns)
     nm.set_id_struct(decoded.id_struct)
+    notebooks = nbs
 
     return true, nil
 end
@@ -105,7 +120,6 @@ end
 function NotebookManager.sync_all()
     -- we assume we have loaded state into memory prior to calling this
 
-    -- TODO: sync links in notes?
     -- sync notes
     --------------
     local notes = nm.get_notes()

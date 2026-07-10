@@ -45,7 +45,7 @@ function Notebook.new_from_folder(name, path)
     ---@param dir string absolute path on disk
     ---@param subpath string path relative to the notebook root ("" for the root)
     local function walk(dir, subpath)
-        local entries, err = fs.list_dir(dir)
+        local entries, err = fs.list_dir(dir) -- TODO:
         if not entries then return end
 
         for _, entry in ipairs(entries) do
