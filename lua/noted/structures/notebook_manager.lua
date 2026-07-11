@@ -1,6 +1,7 @@
 local fs     = require("noted.utils.fs")
 local config = require("noted.config")
 local nm     = require("noted.structures.note_manager")
+local nl     = require("noted.utils.note_links")
 
 
 ---common map of notebook name to notebook
@@ -11,6 +12,7 @@ local notebooks = {}
 ---@class NotebookManager
 ---@field add           fun(notebook: Notebook)
 ---@field remove        fun(subpath: string)
+---@field add_note      fun(note: Note, sibling_path: string)
 ---@field remove_note   fun(id: ID)
 ---@field save_all      fun(): boolean, string?
 ---@field load_all      fun(): boolean, string?
@@ -181,6 +183,13 @@ function NotebookManager.sync_all()
         end
         ::continue_nb::
     end
+
+
+    -- re-derive every note's outlinks from its current on-disk content
+    for _, note in pairs(nm.get_notes()) do
+        nl.sync_outlinks(note, nm.get_notes())
+    end
+
     return true, nil
 end
 
@@ -188,33 +197,37 @@ end
 ---lives here (rather than on Note/Notebook) because it needs to mutate
 ---the shared `notebooks` registry: a brand-new file has no note or
 ---notebook membership yet, and only NotebookManager can create both.
----TODO: also need to check the note itself for links to see if any changed
----@return boolean, string?
 function NotebookManager.sync_curr_buf()
     local path = vim.api.nvim_buf_get_name(0)
     if not path or path == "" then
         return false, "buffer has no file"
     end
 
-    if find_note_by_path(path) then
-        return true, nil -- already tracked, nothing to do
-    end
+    local note = find_note_by_path(path)
+    if not note then
+        -- register brand-new file
+        for _, nb in pairs(notebooks) do
+            if nb:is_real() and path:sub(1, #nb.path) == nb.path then
+                local relative = path:sub(#nb.path + 2)
+                local dir      = relative:match("(.*)/[^/]+$") or ""
+                local subpath  = dir == "" and nb:get_name() or dir
 
-    -- find which real notebook (if any) owns this path, and register a new
-    -- note in the matching subfolder
-    for _, nb in pairs(notebooks) do
-        if nb:is_real() and path:sub(1, #nb.path) == nb.path then
-            local relative = path:sub(#nb.path + 2) -- strip "<notebook root>/" prefix
-            local dir       = relative:match("(.*)/[^/]+$") or ""
-            local subpath   = dir == "" and nb:get_name() or dir
-
-            local note = require("noted.structures.note").new(path)
-            nb:add_note(note.id, subpath)
-            return true, nil
+                note = require("noted.structures.note").new(path)
+                nb:add_note(note.id, subpath)
+                break
+            end
+        end
+        if not note then
+            return false, "path does not belong to any known notebook"
         end
     end
 
-    return false, "path does not belong to any known notebook"
+    -- now that we're guaranteed a tracked note, reconcile its outlinks
+    -- against whatever [[links]] are actually in the buffer/file right now
+    nl.sync_outlinks(note, nm.get_notes())
+    return true, nil
 end
+
+
 
 return NotebookManager
