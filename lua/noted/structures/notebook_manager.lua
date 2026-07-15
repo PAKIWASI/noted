@@ -1,7 +1,7 @@
-local fs     = require("noted.utils.fs")
 local config = require("noted.config")
-local nm     = require("noted.structures.note_manager")
+local fs     = require("noted.utils.fs")
 local nl     = require("noted.utils.note_links")
+local nm     = require("noted.structures.note_manager")
 
 
 ---common map of notebook name to notebook
@@ -227,7 +227,5 @@ function NotebookManager.sync_curr_buf()
     nl.sync_outlinks(note, nm.get_notes())
     return true, nil
 end
-
-
 
 return NotebookManager

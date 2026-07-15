@@ -71,7 +71,7 @@ function M.is_valid_inner(inner)
 end
 
 ---get the link (if any) whose span contains 1-based column `col`.
----useful for `gd`-on-cursor.
+---for `gd`-on-cursor.
 ---@param line string
 ---@param col integer 1-based column
 ---@return {s: integer, e: integer, inner: string}?
