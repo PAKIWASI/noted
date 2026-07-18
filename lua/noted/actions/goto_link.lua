@@ -3,11 +3,10 @@ local nm = require("noted.structures.note_manager")
 local Note = require("noted.structures.note")
 
 
-local M = {}
 
 ---resolve+jump to (creating if necessary) the `[[link]]` under the cursor
 ---in the current buffer. no-op with a notification if cursor isn't on a link.
-function M.goto_link_under_cursor()
+local function goto_link_under_cursor()
     local line = vim.api.nvim_get_current_line()
     local col  = vim.api.nvim_win_get_cursor(0)[2] + 1 -- 0-based -> 1-based
 
@@ -44,5 +43,4 @@ function M.goto_link_under_cursor()
     vim.cmd.edit(vim.fn.fnameescape(note.path))
 end
 
-
-return M
+return goto_link_under_cursor

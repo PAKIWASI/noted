@@ -17,6 +17,7 @@ local notebooks = {}
 ---@field save_all      fun(): boolean, string?
 ---@field load_all      fun(): boolean, string?
 ---@field sync_all      fun(): boolean, string?
+---@field save_curr_buf fun(): boolean, string?
 ---@field sync_curr_buf fun(): boolean, string?
 local NotebookManager = {}
 
@@ -35,7 +36,7 @@ end
 ---add a new notebook
 function NotebookManager.add(notebook)
     local subpath = notebook.subfolders[1].subpath -- subfolders[1] actually stores the name for notebook
-    assert(notebooks[subpath] == nil, "notebook with this name is already present!")
+    assert(notebooks[subpath] == nil, "notebook with this name is already present")
     notebooks[subpath] = notebook
 end
 
@@ -95,6 +96,7 @@ function NotebookManager.load_all()
         return false, "json decode failed"
     end
 
+    --TODO: can i require these on top?
     local Note = require('noted.structures.notes');
     local Notebook = require("noted.structures.notebook");
 
@@ -193,14 +195,12 @@ function NotebookManager.sync_all()
     return true, nil
 end
 
----sync the note for the current buffer the user has just saved.
----lives here (rather than on Note/Notebook) because it needs to mutate
----the shared `notebooks` registry: a brand-new file has no note or
----notebook membership yet, and only NotebookManager can create both.
-function NotebookManager.sync_curr_buf()
+---ensure that the current buffer is backed by a note on disk
+---@return boolean, Note?, string?
+local function ensure_curr_buf_note_exists()
     local path = vim.api.nvim_buf_get_name(0)
     if not path or path == "" then
-        return false, "buffer has no file"
+        return false, nil, "buffer has no file"
     end
 
     local note = find_note_by_path(path)
@@ -209,7 +209,7 @@ function NotebookManager.sync_curr_buf()
         for _, nb in pairs(notebooks) do
             if nb:is_real() and path:sub(1, #nb.path) == nb.path then
                 local relative = path:sub(#nb.path + 2)
-                local dir      = relative:match("(.*)/[^/]+$") or ""
+                local dir      = relative:match("(.*)/[^/]+$") or ""    -- TODO: this should be done by a util
                 local subpath  = dir == "" and nb:get_name() or dir
 
                 note = require("noted.structures.note").new(path)
@@ -218,14 +218,38 @@ function NotebookManager.sync_curr_buf()
             end
         end
         if not note then
-            return false, "path does not belong to any known notebook"
+            return false, nil, "path does not belong to any known notebook"
         end
     end
+
+    return true, note, nil
+end
+
+---save the current buffer to disk
+function NotebookManager.save_curr_buf()
+    ---@diagnostic disable-next-line
+    local ok, note, err  = ensure_curr_buf_note_exists()
+    if not ok then
+        return false, err
+    end
+
+    -- TODO: anyway to partially modify the json?
+
+end
+
+
+---sync the note for the current buffer the user has just saved.
+function NotebookManager.sync_curr_buf()
+    local ok, note, err = ensure_curr_buf_note_exists()
+    if not ok then
+        return false, err
+    end
+    ---@cast note Note
 
     -- now that we're guaranteed a tracked note, reconcile its outlinks
     -- against whatever [[links]] are actually in the buffer/file right now
     nl.sync_outlinks(note, nm.get_notes())
-    return true, nil
+    return true
 end
 
 return NotebookManager
